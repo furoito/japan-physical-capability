@@ -39,3 +39,12 @@ Do not count publication as discovery. A path is considered proven only when a s
 - Dedicated Remote MCP: `https://bqgfqedetmxrfpvmdfmc.supabase.co/functions/v1/japan-physical-capability-mcp`
 - The public MCP no longer depends on the Affiliate Factory production Supabase project after the 0.3.0 registry cutover.
 - E2E evidence before cutover: MCP create/status/cancel PASS; worker claim/complete with private photo evidence PASS; signed evidence fetch HTTP 200; invalid capability tokens fail closed; private bucket direct public fetch denied; rate limit 5 accepted then 429; canary data cleaned back to zero.
+
+
+## v0.4 demand probe
+
+- Generic intake added: `request_external_execution`.
+- Generic requests are tagged `request_kind=external_execution`.
+- `location` is optional for generic requests.
+- Optional `max_budget_jpy` records a non-binding willingness-to-pay hint.
+- Physical verification remains the first verified execution path; other submitted categories are observations until manually accepted and fulfilled.
