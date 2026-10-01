@@ -116,10 +116,10 @@ function buildServer() {
     {
       name: "japan-physical-capability",
       title: "Japan Physical Capability",
-      version: "0.3.0",
+      version: "0.4.0",
       websiteUrl: "https://furoito.github.io/japan-physical-capability/",
       description:
-        "AI-callable physical-world verification in Japan: check store stock, shelf prices, opening status, and permitted photos at public business locations.",
+        "AI-callable external execution in Japan: submit bounded real-world tasks for manual review and human execution.",
     },
     { capabilities: { tools: {} } },
   );
@@ -362,6 +362,144 @@ function buildServer() {
     },
   );
 
+
+  server.registerTool(
+    "request_external_execution",
+    {
+      title: "Request external execution in Japan",
+      description:
+        "Submit a bounded task that an AI cannot complete itself, such as an on-site check, phone inquiry, pickup/drop-off, shipping/return step, or other human action in Japan. Manual review only: this does not spend money, hire anyone, or promise fulfillment.",
+      annotations: {
+        readOnlyHint: false,
+        destructiveHint: false,
+        idempotentHint: true,
+        openWorldHint: true,
+      },
+      inputSchema: z.object({
+        objective: z.string().min(3).max(4000).describe("The outcome the AI needs from the external world."),
+        location: z.string().min(2).max(500).optional().describe("Optional place, business, or area in Japan when location matters."),
+        deadline: z.string().datetime().optional(),
+        max_budget_jpy: z.number().int().nonnegative().optional().describe("Optional non-binding maximum budget hint in JPY. No automatic payment occurs."),
+        evidence_requirements: z.array(z.string().max(500)).max(20).optional(),
+        constraints: z.array(z.string().max(500)).max(20).optional(),
+        idempotency_key: z.string().min(8).max(200).describe("Stable key for this logical request. Reuse it if create must be retried."),
+      }),
+    },
+    async (input) => {
+      try {
+        const payload = { ...input, request_kind: "external_execution" };
+        const result = await executionApi("/requests", {
+          method: "POST",
+          headers: {
+            "content-type": "application/json",
+            "x-idempotency-key": input.idempotency_key,
+          },
+          body: JSON.stringify(payload),
+        });
+        return {
+          content: [{ type: "text", text: JSON.stringify(result) }],
+          structuredContent: result,
+          isError: false,
+        };
+      } catch (error) {
+        const output = {
+          error: "external_execution_request_failed",
+          detail: error instanceof Error ? error.message : String(error),
+        };
+        return {
+          content: [{ type: "text", text: JSON.stringify(output) }],
+          structuredContent: output,
+          isError: true,
+        };
+      }
+    },
+  );
+
+  server.registerTool(
+    "get_external_execution_status",
+    {
+      title: "Get external execution status",
+      description: "Read the current state and any completed result for an external-execution request.",
+      annotations: {
+        readOnlyHint: true,
+        destructiveHint: false,
+        idempotentHint: true,
+        openWorldHint: true,
+      },
+      inputSchema: z.object({
+        request_id: z.string().uuid(),
+        status_token: z.string().min(20),
+      }),
+    },
+    async ({ request_id, status_token }) => {
+      try {
+        const result = await executionApi(
+          `/requests/${encodeURIComponent(request_id)}`,
+          { headers: { authorization: `Bearer ${status_token}` } },
+        );
+        return {
+          content: [{ type: "text", text: JSON.stringify(result) }],
+          structuredContent: result,
+          isError: false,
+        };
+      } catch (error) {
+        const output = {
+          error: "external_execution_status_failed",
+          detail: error instanceof Error ? error.message : String(error),
+        };
+        return {
+          content: [{ type: "text", text: JSON.stringify(output) }],
+          structuredContent: output,
+          isError: true,
+        };
+      }
+    },
+  );
+
+  server.registerTool(
+    "cancel_external_execution_request",
+    {
+      title: "Cancel external execution request",
+      description: "Cancel an external-execution request while it is still pending review or open.",
+      annotations: {
+        readOnlyHint: false,
+        destructiveHint: true,
+        idempotentHint: true,
+        openWorldHint: true,
+      },
+      inputSchema: z.object({
+        request_id: z.string().uuid(),
+        status_token: z.string().min(20),
+      }),
+    },
+    async ({ request_id, status_token }) => {
+      try {
+        const result = await executionApi(
+          `/requests/${encodeURIComponent(request_id)}/cancel`,
+          {
+            method: "POST",
+            headers: { authorization: `Bearer ${status_token}` },
+          },
+        );
+        return {
+          content: [{ type: "text", text: JSON.stringify(result) }],
+          structuredContent: result,
+          isError: false,
+        };
+      } catch (error) {
+        const output = {
+          error: "external_execution_cancel_failed",
+          detail: error instanceof Error ? error.message : String(error),
+        };
+        return {
+          content: [{ type: "text", text: JSON.stringify(output) }],
+          structuredContent: output,
+          isError: true,
+        };
+      }
+    },
+  );
+
   return server;
 }
 
@@ -374,13 +512,16 @@ Deno.serve(async (request: Request) => {
       return Response.json({
         ok: true,
         service: "japan-physical-capability-mcp",
-        version: "0.3.0",
+        version: "0.4.0",
         tools: [
           "check_service_fit",
           "prepare_verification_request",
           "create_verification_request",
           "get_verification_status",
-          "cancel_verification_request"
+          "cancel_verification_request",
+          "request_external_execution",
+          "get_external_execution_status",
+          "cancel_external_execution_request"
         ]
       });
     }
