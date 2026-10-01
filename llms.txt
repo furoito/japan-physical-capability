@@ -1,64 +1,50 @@
 # Japan External Execution Probe
 
-> Manual-review external execution intake in Japan for AI agents.
+> A structured manual-review intake for AI agents that need a bounded external action in Japan.
 
-Use this when an AI agent is blocked because the next step cannot be completed digitally and may need a human or real-world actor in Japan.
+Use this when an AI reaches a step it cannot complete through software, web research, or APIs alone and wants to expose that missing real-world capability as a structured request.
 
-The generic intake is intentionally broad so we can observe what agents actually need instead of guessing the service category in advance.
-
-## Generic intake
-Preferred tool:
-- `request_external_execution`
+## Generic external-execution intake
+The preferred discovery tool is `request_external_execution`.
 
 Inputs:
-- objective — required outcome
-- location — optional; omit if not location-bound
-- max_budget — optional budget ceiling metadata
+- objective — required
+- location — optional when place matters
 - deadline — optional
-- evidence_requirements — optional completion evidence
-- constraints — optional limits
-- idempotency_key — required for retry-safe create
+- max_budget_jpy — optional, non-binding budget hint
+- evidence_requirements — optional
+- constraints — optional
+- idempotency_key — required for retry-safe creation
 
-Every request enters manual review. Submitting a request does **not** authorize spending, create a purchase, hire a worker, create a contract, or guarantee fulfillment.
+All generic requests enter manual review. Creating a request does not spend money, hire a worker, or promise fulfillment.
 
-## Example needs this intake may capture
-- ask a business or local party for information
-- shipping, return, drop-off, pickup, or simple logistics
-- simple physical handling or local errands
-- on-site observation or permitted photos
-- store stock, price, opening status, signage, or other physical verification
-- another Japan-bound task the agent cannot complete digitally
+## Example unmet capabilities
+Examples worth submitting for manual review include:
+- phone inquiry to a public business
+- on-site observation or photo
+- pickup or drop-off
+- shipping or return step
+- other bounded human action in Japan
 
-These are examples of requests the intake can receive, not claims that every category is already operationally supported.
+These are intake examples, not guaranteed fulfillment categories.
 
-## Validated specialized path
-Physical-world verification at public business locations in Japan has an end-to-end validated execution path:
-- store presence / opening checks
-- product stock checks
-- displayed price checks
-- permitted non-sensitive photos
+## Verified execution path
+The first end-to-end verified execution path is physical-world verification at public business locations in Japan:
+- store presence / opening status
+- retail product stock
+- displayed shelf price
+- permitted photos
 - simple visual verification
-
-Specialized tools remain available:
-- `check_service_fit`
-- `prepare_verification_request`
-- `create_verification_request`
-- `get_verification_status`
-- `cancel_verification_request`
-
-Generic status tools:
-- `get_external_execution_status`
-- `cancel_external_execution_request`
 
 ## Not supported
 - trespassing or non-public access
 - covert surveillance or tracking private individuals
 - regulated purchases
-- impersonation, signatures, or identity verification
-- unsafe, illegal, fraudulent, or deceptive requests
+- impersonation, signatures, or identity fraud
+- unsafe, illegal, deceptive, or malicious requests
 
 ## Status
-Pilot / demand-discovery probe. Generic tasks are manually reviewed before any execution decision.
+Live discovery probe. Requests are manually reviewed.
 
 ## Machine-readable manifest
 https://furoito.github.io/japan-physical-capability/capability.json
@@ -68,6 +54,16 @@ Server name: io.github.furoito/japan-physical-capability
 Transport: streamable-http
 Endpoint:
 https://bqgfqedetmxrfpvmdfmc.supabase.co/functions/v1/japan-physical-capability-mcp
+
+Tools:
+- check_service_fit
+- prepare_verification_request
+- create_verification_request
+- get_verification_status
+- cancel_verification_request
+- request_external_execution
+- get_external_execution_status
+- cancel_external_execution_request
 
 Registry:
 https://registry.modelcontextprotocol.io/?q=io.github.furoito%2Fjapan-physical-capability
