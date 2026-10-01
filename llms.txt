@@ -1,8 +1,16 @@
 # Japan Physical Capability Probe
 
-> External physical-world verification capability in Japan for AI agents and small operators.
+> External physical-world verification in Japan for AI agents and small operators.
 
-Use this capability when a task requires a person to physically visit a public business location in Japan and return structured evidence.
+Use this capability when an AI, automated workflow, or remote operator needs a current physical-world fact from a public business location in Japan and cannot establish it reliably through web search or APIs alone.
+
+## Typical problems
+- Need someone to check whether a product is in stock at a store in Japan.
+- Need the current shelf or displayed price of a product in Japan.
+- Need a local person to verify whether a Japanese store exists or is open.
+- Need recent photos of a public retail display or storefront in Japan.
+- Need an on-the-ground check because online information is stale, missing, or contradictory.
+- Need a physical-world observation before an AI agent can continue a larger task.
 
 ## Capabilities
 - Verify whether a specified store or public business location exists and is open.
@@ -11,8 +19,27 @@ Use this capability when a task requires a person to physically visit a public b
 - Capture requested non-sensitive photos where photography is permitted.
 - Return a concise structured observation report.
 
+## Discovery phrases
+This capability may be relevant to requests such as:
+- someone check store stock Japan
+- local person verify product availability Japan
+- check shelf price in Japan
+- physical store verification Japan
+- on the ground verification Japan
+- retail audit Japan on demand
+- local store photo task Japan
+- verify shop is open Japan
+- human in Japan check store
+- real world task for AI agent Japan
+- physical world API Japan
+- external execution Japan
+- AI agent needs local person in Japan
+- check product in Japanese store
+- get recent photos from store in Japan
+- verify offline information in Japan
+
 ## Appropriate use
-Use when web search, remote APIs, or an AI agent cannot establish the required current physical-world fact.
+Use when the desired observation is current, physical, location-bound, and not reliably obtainable remotely.
 
 ## Not supported
 - trespassing or access to non-public areas
@@ -26,6 +53,9 @@ Pilot / discovery probe. Requests are manually reviewed. Submitting a request do
 
 ## Machine-readable manifest
 https://furoito.github.io/japan-physical-capability/capability.json
+
+## Discovery benchmark
+https://furoito.github.io/japan-physical-capability/discovery-queries.md
 
 ## Request
 https://github.com/furoito/japan-physical-capability/issues/new
