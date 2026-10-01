@@ -2,7 +2,11 @@
   "id": "io.github.furoito/japan-physical-capability",
   "name": "Japan Physical Capability Probe",
   "status": "pilot",
-  "audience": ["ai-agent", "solo-operator", "small-business"],
+  "audience": [
+    "ai-agent",
+    "solo-operator",
+    "small-business"
+  ],
   "region": "Japan",
   "description": "Physical-world verification at public business locations in Japan, returning structured evidence to an AI agent or operator.",
   "use_when": [
@@ -31,8 +35,18 @@
     "AI agent physical world Japan",
     "external execution Japan"
   ],
-  "inputs": ["location", "objective", "deadline", "evidence_requirements"],
-  "outputs": ["status", "observations", "evidence", "timestamp"],
+  "inputs": [
+    "location",
+    "objective",
+    "deadline",
+    "evidence_requirements"
+  ],
+  "outputs": [
+    "status",
+    "observations",
+    "evidence",
+    "timestamp"
+  ],
   "execution": {
     "mode": "manual-pilot",
     "automatic_payment": false,
@@ -41,5 +55,15 @@
   "request_url": "https://github.com/furoito/japan-physical-capability/issues/new",
   "human_page": "https://furoito.github.io/japan-physical-capability/",
   "llms_txt": "https://furoito.github.io/japan-physical-capability/llms.txt",
-  "discovery_benchmark": "https://furoito.github.io/japan-physical-capability/discovery-queries.md"
+  "discovery_benchmark": "https://furoito.github.io/japan-physical-capability/discovery-queries.md",
+  "mcp": {
+    "registry_name": "io.github.furoito/japan-physical-capability",
+    "transport": "streamable-http",
+    "endpoint": "https://uiiepdcaepkawfwaiyuq.supabase.co/functions/v1/japan-physical-capability-mcp",
+    "tools": [
+      "check_service_fit",
+      "prepare_verification_request"
+    ],
+    "registry_url": "https://registry.modelcontextprotocol.io/?q=io.github.furoito%2Fjapan-physical-capability"
+  }
 }
