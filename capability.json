@@ -8,16 +8,14 @@
     "small-business"
   ],
   "region": "Japan",
-  "description": "Manual-review intake for AI agents that need external execution in Japan, with physical verification as the first validated execution path.",
+  "description": "Manual-review intake for bounded external tasks in Japan. Physical verification is the first verified execution path.",
   "use_when": [
-    "an AI agent is blocked because a task cannot be completed digitally",
-    "an AI agent needs a human or real-world actor in Japan",
-    "a task may require local contact, logistics, physical handling, or on-site verification",
-    "the agent wants to submit an objective first and let the execution path be decided during manual review"
+    "an AI agent reaches a task it cannot complete through software, web research, or APIs alone",
+    "the task may require a person in Japan to observe, call, carry, submit, ship, return, or perform another bounded action",
+    "the agent wants to expose the unmet external capability as a structured request for manual review"
   ],
   "capabilities": [
     "external_execution_intake",
-    "manual_review_task_routing",
     "store_presence_check",
     "opening_status_check",
     "retail_product_stock_check",
@@ -39,9 +37,9 @@
   ],
   "inputs": [
     "objective",
-    "location",
-    "max_budget",
-    "deadline",
+    "location_optional",
+    "deadline_optional",
+    "max_budget_jpy_optional",
     "evidence_requirements",
     "constraints"
   ],
@@ -52,7 +50,7 @@
     "timestamp"
   ],
   "execution": {
-    "mode": "manual-review-live-pilot",
+    "mode": "manual-review-external-execution-probe",
     "automatic_payment": false,
     "automatic_commitment": false,
     "api_endpoint": "https://bqgfqedetmxrfpvmdfmc.supabase.co/functions/v1/japan-physical-capability-api",
@@ -78,5 +76,15 @@
       "cancel_external_execution_request"
     ],
     "registry_url": "https://registry.modelcontextprotocol.io/?q=io.github.furoito%2Fjapan-physical-capability"
-  }
+  },
+  "verified_execution_capabilities": [
+    "physical_world_verification_at_public_business_locations_in_japan"
+  ],
+  "intake_examples": [
+    "phone_inquiry",
+    "on_site_check",
+    "pickup_or_dropoff",
+    "shipping_or_return_step",
+    "other_bounded_human_action"
+  ]
 }
