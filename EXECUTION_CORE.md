@@ -18,11 +18,8 @@ The minimum operational backend for Japan Physical Capability is live on a **ded
   - private photo storage + temporary signed URLs
   - operator routes fail closed unless an operator key is explicitly provisioned
 - `supabase/functions/japan-physical-capability-mcp/`
-  - `check_service_fit`
-  - `prepare_verification_request`
-  - `create_verification_request`
-  - `get_verification_status`
-  - `cancel_verification_request`
+  - generic demand probe: `request_external_execution`, `get_external_execution_status`, `cancel_external_execution_request`
+  - validated physical path: `check_service_fit`, `prepare_verification_request`, `create_verification_request`, `get_verification_status`, `cancel_verification_request`
 - `pilot/worker.html`
   - minimal mobile-friendly worker surface pointed at the dedicated execution API
 - `pilot/operator.html`
@@ -56,3 +53,7 @@ The minimum operational backend for Japan Physical Capability is live on a **ded
 - no regulated or private-location work
 
 These are intentionally deferred until repeated real demand justifies abstraction.
+
+## v0.4 demand probe
+
+Generic requests are stored with `request_kind=external_execution`. `location` is optional for generic intake, and `max_budget_jpy` is a non-binding willingness-to-pay hint. Every request remains `pending_review` until a human explicitly approves it. No automatic spending or fulfillment is enabled.
