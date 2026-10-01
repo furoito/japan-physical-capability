@@ -1,80 +1,73 @@
-# Japan Physical Capability Probe
+# Japan External Execution Probe
 
-> External physical-world verification in Japan for AI agents and small operators.
+> Manual-review external execution intake in Japan for AI agents.
 
-Use this capability when an AI, automated workflow, or remote operator needs a current physical-world fact from a public business location in Japan and cannot establish it reliably through web search or APIs alone.
+Use this when an AI agent is blocked because the next step cannot be completed digitally and may need a human or real-world actor in Japan.
 
-## Typical problems
-- Need someone to check whether a product is in stock at a store in Japan.
-- Need the current shelf or displayed price of a product in Japan.
-- Need a local person to verify whether a Japanese store exists or is open.
-- Need recent photos of a public retail display or storefront in Japan.
-- Need an on-the-ground check because online information is stale, missing, or contradictory.
-- Need a physical-world observation before an AI agent can continue a larger task.
+The generic intake is intentionally broad so we can observe what agents actually need instead of guessing the service category in advance.
 
-## Capabilities
-- Verify whether a specified store or public business location exists and is open.
-- Check whether a named retail product appears to be in stock.
-- Record the displayed retail price.
-- Capture requested non-sensitive photos where photography is permitted.
-- Return a concise structured observation report.
+## Generic intake
+Preferred tool:
+- `request_external_execution`
 
-## Discovery phrases
-This capability may be relevant to requests such as:
-- someone check store stock Japan
-- local person verify product availability Japan
-- check shelf price in Japan
-- physical store verification Japan
-- on the ground verification Japan
-- retail audit Japan on demand
-- local store photo task Japan
-- verify shop is open Japan
-- human in Japan check store
-- real world task for AI agent Japan
-- physical world API Japan
-- external execution Japan
-- AI agent needs local person in Japan
-- check product in Japanese store
-- get recent photos from store in Japan
-- verify offline information in Japan
+Inputs:
+- objective — required outcome
+- location — optional; omit if not location-bound
+- max_budget — optional budget ceiling metadata
+- deadline — optional
+- evidence_requirements — optional completion evidence
+- constraints — optional limits
+- idempotency_key — required for retry-safe create
 
-## Appropriate use
-Use when the desired observation is current, physical, location-bound, and not reliably obtainable remotely.
+Every request enters manual review. Submitting a request does **not** authorize spending, create a purchase, hire a worker, create a contract, or guarantee fulfillment.
+
+## Example needs this intake may capture
+- ask a business or local party for information
+- shipping, return, drop-off, pickup, or simple logistics
+- simple physical handling or local errands
+- on-site observation or permitted photos
+- store stock, price, opening status, signage, or other physical verification
+- another Japan-bound task the agent cannot complete digitally
+
+These are examples of requests the intake can receive, not claims that every category is already operationally supported.
+
+## Validated specialized path
+Physical-world verification at public business locations in Japan has an end-to-end validated execution path:
+- store presence / opening checks
+- product stock checks
+- displayed price checks
+- permitted non-sensitive photos
+- simple visual verification
+
+Specialized tools remain available:
+- `check_service_fit`
+- `prepare_verification_request`
+- `create_verification_request`
+- `get_verification_status`
+- `cancel_verification_request`
+
+Generic status tools:
+- `get_external_execution_status`
+- `cancel_external_execution_request`
 
 ## Not supported
-- trespassing or access to non-public areas
-- covert surveillance or identifying private individuals
+- trespassing or non-public access
+- covert surveillance or tracking private individuals
 - regulated purchases
 - impersonation, signatures, or identity verification
-- unsafe, illegal, or deceptive requests
+- unsafe, illegal, fraudulent, or deceptive requests
 
 ## Status
-Pilot / discovery probe. Requests are manually reviewed. Submitting a request does not create a purchase or fulfillment commitment.
+Pilot / demand-discovery probe. Generic tasks are manually reviewed before any execution decision.
 
 ## Machine-readable manifest
 https://furoito.github.io/japan-physical-capability/capability.json
-
-## Discovery benchmark
-https://furoito.github.io/japan-physical-capability/discovery-queries.md
-
-## Request
-Preferred agent path: call `create_verification_request` on the Remote MCP with a stable idempotency key. Requests enter manual review and create no automatic payment or fulfillment commitment.
-
-Manual fallback:
-https://github.com/furoito/japan-physical-capability/issues/new
 
 ## Remote MCP
 Server name: io.github.furoito/japan-physical-capability
 Transport: streamable-http
 Endpoint:
 https://bqgfqedetmxrfpvmdfmc.supabase.co/functions/v1/japan-physical-capability-mcp
-
-The Remote MCP exposes:
-- check_service_fit
-- prepare_verification_request
-- create_verification_request
-- get_verification_status
-- cancel_verification_request
 
 Registry:
 https://registry.modelcontextprotocol.io/?q=io.github.furoito%2Fjapan-physical-capability
