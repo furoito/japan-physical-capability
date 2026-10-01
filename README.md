@@ -2,13 +2,20 @@
 
 AI-discoverable pilot capability for physical-world verification in Japan.
 
-This is not a worker marketplace. The service is defined by outcomes: an AI agent or operator specifies what must be verified at a real-world location in Japan, and receives structured evidence.
+This is not a worker marketplace. The service is defined by outcomes: an AI agent or operator specifies what must be verified at a real-world public business location in Japan and receives structured evidence.
+
+Examples:
+- check whether a product is actually in stock at a Japanese store
+- check the current displayed shelf price
+- verify whether a store exists or is open
+- obtain recent permitted photos of a storefront or retail display
+- resolve a physical-world fact that web search or APIs cannot establish
 
 Pilot scope:
 - store presence / opening check
 - product stock check
 - displayed price check
-- requested photos
+- requested permitted photos
 - simple visual verification
 
 Status: discovery probe / manual pilot. No automatic payment or fulfillment commitment is created by submitting a request.
@@ -16,5 +23,8 @@ Status: discovery probe / manual pilot. No automatic payment or fulfillment comm
 Machine-readable entry points:
 - `/llms.txt`
 - `/capability.json`
+
+Discovery measurement:
+- `/discovery-queries.md` contains a 60-query benchmark for testing whether an AI can find this capability without being given its name or URL.
 
 Requests: open a GitHub Issue in this repository.
