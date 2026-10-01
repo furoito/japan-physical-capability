@@ -1,3 +1,2 @@
-// Safe default for the public Pages deployment. Replaced only after the dedicated
-// execution backend passes the activation gate.
-window.CAPABILITY_EXECUTION_API = "";
+// Dedicated live pilot backend. No secret material is embedded here.
+window.CAPABILITY_EXECUTION_API = "https://bqgfqedetmxrfpvmdfmc.supabase.co/functions/v1/japan-physical-capability-api";
