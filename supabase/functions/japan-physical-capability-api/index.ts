@@ -344,7 +344,6 @@ async function operatorApprove(req, id) {
   if (error) throw error;
   await addEvent(client, id, "request_approved", "operator");
 
-  const workerBase = Deno.env.get("CAPABILITY_WORKER_URL") ?? "https://furoito.github.io/japan-physical-capability/pilot/worker.html";
   return json(req, {
     request_id: id,
     status: "open",
