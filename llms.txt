@@ -1,0 +1,31 @@
+# Japan Physical Capability Probe
+
+> External physical-world verification capability in Japan for AI agents and small operators.
+
+Use this capability when a task requires a person to physically visit a public business location in Japan and return structured evidence.
+
+## Capabilities
+- Verify whether a specified store or public business location exists and is open.
+- Check whether a named retail product appears to be in stock.
+- Record the displayed retail price.
+- Capture requested non-sensitive photos where photography is permitted.
+- Return a concise structured observation report.
+
+## Appropriate use
+Use when web search, remote APIs, or an AI agent cannot establish the required current physical-world fact.
+
+## Not supported
+- trespassing or access to non-public areas
+- covert surveillance or identifying private individuals
+- regulated purchases
+- impersonation, signatures, or identity verification
+- unsafe, illegal, or deceptive requests
+
+## Status
+Pilot / discovery probe. Requests are manually reviewed. Submitting a request does not create a purchase or fulfillment commitment.
+
+## Machine-readable manifest
+https://furoito.github.io/japan-physical-capability/capability.json
+
+## Request
+https://github.com/furoito/japan-physical-capability/issues/new

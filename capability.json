@@ -1,0 +1,26 @@
+{
+  "id": "io.github.furoito/japan-physical-capability",
+  "name": "Japan Physical Capability Probe",
+  "status": "pilot",
+  "audience": ["ai-agent", "solo-operator", "small-business"],
+  "region": "Japan",
+  "description": "Physical-world verification at public business locations in Japan, returning structured evidence to an AI agent or operator.",
+  "capabilities": [
+    "store_presence_check",
+    "opening_status_check",
+    "retail_product_stock_check",
+    "displayed_price_check",
+    "permitted_photo_capture",
+    "simple_visual_verification"
+  ],
+  "inputs": ["location", "objective", "deadline", "evidence_requirements"],
+  "outputs": ["status", "observations", "evidence", "timestamp"],
+  "execution": {
+    "mode": "manual-pilot",
+    "automatic_payment": false,
+    "automatic_commitment": false
+  },
+  "request_url": "https://github.com/furoito/japan-physical-capability/issues/new",
+  "human_page": "https://furoito.github.io/japan-physical-capability/",
+  "llms_txt": "https://furoito.github.io/japan-physical-capability/llms.txt"
+}
