@@ -38,3 +38,12 @@ Existing verification tools remain available.
 ## Execution core
 
 The bounded execution core runs on a dedicated Supabase project, separate from Affiliate Factory production. Requests are retry-safe, manually reviewed, capability-token mediated, and can return private signed evidence when completed.
+
+
+## Generic external-execution probe
+
+The live MCP now exposes `request_external_execution`, `get_external_execution_status`, and `cancel_external_execution_request`.
+
+The generic intake intentionally does not promise that every submitted category can be fulfilled. It exists to observe what external capabilities AI agents actually request. Every request enters manual review; no automatic payment, hiring, or fulfillment commitment occurs.
+
+Physical verification remains the first execution path that has been verified end-to-end.
