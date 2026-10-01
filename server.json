@@ -10,11 +10,11 @@
     "id": "1399652941",
     "subfolder": "supabase/functions/japan-physical-capability-mcp"
   },
-  "version": "0.2.1",
+  "version": "0.3.0",
   "remotes": [
     {
       "type": "streamable-http",
-      "url": "https://uiiepdcaepkawfwaiyuq.supabase.co/functions/v1/japan-physical-capability-mcp"
+      "url": "https://bqgfqedetmxrfpvmdfmc.supabase.co/functions/v1/japan-physical-capability-mcp"
     }
   ]
 }
