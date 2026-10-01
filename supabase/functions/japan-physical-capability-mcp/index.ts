@@ -100,10 +100,10 @@ function buildServer() {
     {
       name: "japan-physical-capability",
       title: "Japan Physical Capability",
-      version: "0.2.0",
+      version: "0.2.1",
       websiteUrl: "https://furoito.github.io/japan-physical-capability/",
       description:
-        "Physical-world verification at public business locations in Japan for AI agents and small operators.",
+        "AI-callable physical-world verification in Japan: check store stock, shelf prices, opening status, and permitted photos at public business locations.",
     },
     { capabilities: { tools: {} } },
   );
@@ -113,7 +113,13 @@ function buildServer() {
     {
       title: "Check Japan physical verification fit",
       description:
-        "Check whether a task requiring current physical-world verification at a public business location in Japan fits this pilot. Use when web research or APIs cannot establish the required current fact.",
+        "Use when an AI needs someone on the ground in Japan to verify a current physical-world fact such as store stock, shelf price, opening status, or permitted photos, after web research or APIs are insufficient.",
+      annotations: {
+        readOnlyHint: true,
+        destructiveHint: false,
+        idempotentHint: true,
+        openWorldHint: true,
+      },
       inputSchema: z.object({
         location: z.string().min(1).describe("Public business or retail location in Japan."),
         objective: z.string().min(1).describe("The physical-world fact that must be verified."),
@@ -143,7 +149,13 @@ function buildServer() {
     {
       title: "Prepare Japan physical verification request",
       description:
-        "Normalize a proposed Japan physical-world verification task and return a prefilled manual-review request URL. This does not purchase, submit, or commit to fulfillment.",
+        "Prepare a Japan on-site verification request for a human-executed store check. Returns a prefilled manual-review URL only; it does not purchase, submit, hire, pay, or create a fulfillment commitment.",
+      annotations: {
+        readOnlyHint: true,
+        destructiveHint: false,
+        idempotentHint: true,
+        openWorldHint: true,
+      },
       inputSchema: z.object({
         location: z.string().min(1).describe("Public business or retail location in Japan."),
         objective: z.string().min(1).describe("What must be physically verified."),
