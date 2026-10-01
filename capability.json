@@ -1,6 +1,6 @@
 {
   "id": "io.github.furoito/japan-physical-capability",
-  "name": "Japan Physical Capability Probe",
+  "name": "Japan External Execution Probe",
   "status": "pilot",
   "audience": [
     "ai-agent",
@@ -8,14 +8,16 @@
     "small-business"
   ],
   "region": "Japan",
-  "description": "Physical-world verification at public business locations in Japan, returning structured evidence to an AI agent or operator.",
+  "description": "Manual-review intake for AI agents that need external execution in Japan, with physical verification as the first validated execution path.",
   "use_when": [
-    "an AI agent needs a current physical-world fact from Japan",
-    "online information about a Japanese store is missing, stale, or contradictory",
-    "a task requires someone to physically visit a public business location in Japan",
-    "the agent needs product stock, displayed price, storefront status, or permitted photos before continuing"
+    "an AI agent is blocked because a task cannot be completed digitally",
+    "an AI agent needs a human or real-world actor in Japan",
+    "a task may require local contact, logistics, physical handling, or on-site verification",
+    "the agent wants to submit an objective first and let the execution path be decided during manual review"
   ],
   "capabilities": [
+    "external_execution_intake",
+    "manual_review_task_routing",
     "store_presence_check",
     "opening_status_check",
     "retail_product_stock_check",
@@ -24,22 +26,24 @@
     "simple_visual_verification"
   ],
   "discovery_terms": [
-    "someone check store stock Japan",
-    "local person verify product availability Japan",
-    "physical store verification Japan",
-    "on the ground verification Japan",
-    "retail audit Japan on demand",
-    "check shelf price Japan",
-    "local store photos Japan",
-    "human in Japan check store",
-    "AI agent physical world Japan",
-    "external execution Japan"
+    "external execution Japan",
+    "AI needs human in Japan",
+    "human task API Japan",
+    "AI agent outsource real world task Japan",
+    "local person do task Japan",
+    "AI cannot complete task needs human Japan",
+    "shipping return task Japan AI",
+    "call business in Japan for AI agent",
+    "physical verification Japan",
+    "someone check store stock Japan"
   ],
   "inputs": [
-    "location",
     "objective",
+    "location",
+    "max_budget",
     "deadline",
-    "evidence_requirements"
+    "evidence_requirements",
+    "constraints"
   ],
   "outputs": [
     "status",
@@ -68,7 +72,10 @@
       "prepare_verification_request",
       "create_verification_request",
       "get_verification_status",
-      "cancel_verification_request"
+      "cancel_verification_request",
+      "request_external_execution",
+      "get_external_execution_status",
+      "cancel_external_execution_request"
     ],
     "registry_url": "https://registry.modelcontextprotocol.io/?q=io.github.furoito%2Fjapan-physical-capability"
   }
