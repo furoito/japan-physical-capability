@@ -28,3 +28,10 @@ Discovery measurement:
 - `/discovery-queries.md` contains a 60-query benchmark for testing whether an AI can find this capability without being given its name or URL.
 
 Requests: open a GitHub Issue in this repository.
+
+Remote MCP:
+- Registry name: `io.github.furoito/japan-physical-capability`
+- Transport: Streamable HTTP
+- Endpoint: `https://uiiepdcaepkawfwaiyuq.supabase.co/functions/v1/japan-physical-capability-mcp`
+- Official MCP Registry: https://registry.modelcontextprotocol.io/?q=io.github.furoito%2Fjapan-physical-capability
+- Tools: `check_service_fit`, `prepare_verification_request`
