@@ -1,0 +1,16 @@
+{
+  "$schema": "https://glama.ai/mcp/schemas/server.json",
+  "maintainers": ["furoito"],
+  "keywords": [
+    "japan",
+    "physical-world",
+    "store-verification",
+    "stock-check",
+    "price-check",
+    "retail",
+    "on-site-verification",
+    "human-execution",
+    "ai-agent",
+    "remote-mcp"
+  ]
+}
