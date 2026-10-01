@@ -1,8 +1,8 @@
-# Execution Core v1 — source-ready, not live
+# Execution Core v1 — live pilot
 
-This directory contains the minimum operational backend for Japan Physical Capability. It is intentionally **not deployed into the Affiliate Factory Supabase project**.
+The minimum operational backend for Japan Physical Capability is live on a **dedicated Supabase project**, separate from Affiliate Factory production.
 
-## Components
+## Live components
 
 - `design/capability_execution_core_v1.sql`
   - request state
@@ -11,37 +11,48 @@ This directory contains the minimum operational backend for Japan Physical Capab
   - private Storage bucket
   - RLS enabled with no public policies
 - `supabase/functions/japan-physical-capability-api/`
-  - public request creation with bounded rate limiting
-  - requester-token status and cancellation
-  - operator review/approval/rejection via server secret
-  - worker-token claim and completion
+  - public, bounded request creation
+  - retry-safe idempotent create
+  - requester capability-token status and cancellation
+  - worker capability-token claim and completion
   - private photo storage + temporary signed URLs
-- `supabase/functions/japan-physical-capability-mcp-next/`
-  - future MCP `create/get/cancel` tools
-  - **not live until the API has a dedicated deployment**
-- `pilot/operator.html`
-  - minimal manual review queue
+  - operator routes fail closed unless an operator key is explicitly provisioned
+- `supabase/functions/japan-physical-capability-mcp/`
+  - `check_service_fit`
+  - `prepare_verification_request`
+  - `create_verification_request`
+  - `get_verification_status`
+  - `cancel_verification_request`
 - `pilot/worker.html`
-  - minimal mobile-friendly task/claim/completion surface
+  - minimal mobile-friendly worker surface pointed at the dedicated execution API
+- `pilot/operator.html`
+  - source retained, but public operator auth is not enabled in the live pilot; current manual review is admin/control-plane mediated
 
-## Required Edge Function secrets
+## Live endpoints
 
-- `CAPABILITY_HASH_SALT`: random secret used when hashing bearer capabilities and source fingerprints.
-- `CAPABILITY_OPERATOR_KEY`: operator dashboard/admin API key.
-- `CAPABILITY_WORKER_URL`: normally `https://furoito.github.io/japan-physical-capability/pilot/worker.html`.
-- Supabase-provided `SUPABASE_URL` and secret API key environment variables.
+- Execution API: `https://bqgfqedetmxrfpvmdfmc.supabase.co/functions/v1/japan-physical-capability-api`
+- Remote MCP: `https://bqgfqedetmxrfpvmdfmc.supabase.co/functions/v1/japan-physical-capability-mcp`
 
-## Activation gate
+## Security / reliability properties verified
 
-Do not expose the new MCP tools until all of these pass on a dedicated project:
+- RLS enabled and no anon/authenticated table policies
+- private evidence bucket; direct public object fetch denied
+- temporary signed evidence URL successfully fetched after completion
+- invalid requester and worker capability tokens fail closed
+- unauthenticated operator route returns 401
+- bounded request rate limit verified
+- retry with the same idempotency key recovers the same request and requester token
+- repeated cancellation is idempotent
+- synthetic full E2E passed: request -> review -> worker -> evidence -> structured result -> requester
+- synthetic jobs and evidence were cleaned after probes
 
-1. migration applied outside Factory
-2. API create/status/cancel round-trip
-3. operator approve -> worker URL
-4. worker claim -> complete with photo
-5. requester status returns signed evidence URL
-6. evidence URL expires and bucket remains private
-7. invalid requester/worker/operator tokens fail closed
-8. rate-limit behavior verified
+## Remaining deliberate limits
 
-Only then replace the current prepare-only MCP with the execution-capable version.
+- manual approval
+- no automated payment / escrow
+- no open worker marketplace
+- no KYC / worker ratings
+- no automatic pricing / SLA
+- no regulated or private-location work
+
+These are intentionally deferred until repeated real demand justifies abstraction.
