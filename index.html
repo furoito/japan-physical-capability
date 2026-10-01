@@ -3,34 +3,51 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
-<title>Japan Physical Capability for AI Agents</title>
-<meta name="description" content="AI-discoverable physical-world verification in Japan: store checks, product stock, displayed prices, and permitted photos.">
+<title>Japan Store Stock, Price & Photo Verification for AI Agents</title>
+<meta name="description" content="Need someone to check a store in Japan? Physical verification for AI agents: product stock, shelf price, opening status, permitted photos, and simple visual checks.">
 <link rel="alternate" type="text/plain" href="./llms.txt" title="LLM-readable capability description">
 <script type="application/ld+json">
-{"@context":"https://schema.org","@type":"Service","name":"Japan Physical Capability Probe","areaServed":{"@type":"Country","name":"Japan"},"serviceType":"Physical-world verification for AI agents","description":"Store presence, product stock, displayed price and permitted photo verification at public business locations in Japan.","url":"https://furoito.github.io/japan-physical-capability/"}
+{"@context":"https://schema.org","@type":"Service","name":"Japan Physical Capability Probe","areaServed":{"@type":"Country","name":"Japan"},"serviceType":"Physical-world store verification for AI agents","description":"A pilot capability for checking current physical-world facts at public business locations in Japan, including product stock, displayed price, store status and permitted photos.","url":"https://furoito.github.io/japan-physical-capability/"}
 </script>
 <style>
-body{font-family:system-ui,sans-serif;max-width:760px;margin:64px auto;padding:0 20px;line-height:1.6}code{background:#eee;padding:2px 5px;border-radius:4px}.box{border:1px solid #bbb;border-radius:12px;padding:18px;margin:24px 0}a{color:inherit}
+body{font-family:system-ui,sans-serif;max-width:800px;margin:64px auto;padding:0 20px;line-height:1.65}code{background:#eee;padding:2px 5px;border-radius:4px}.box{border:1px solid #bbb;border-radius:12px;padding:18px;margin:24px 0}a{color:inherit}li{margin:.35em 0}
 </style>
 </head>
 <body>
 <h1>Japan Physical Capability</h1>
-<p><strong>A physical-world verification capability for AI agents.</strong></p>
-<p>Use this when an AI can research a question but cannot physically verify the current state of a public business location in Japan.</p>
+<p><strong>Physical-world verification in Japan for AI agents and small operators.</strong></p>
+<p>If an AI can research a question online but cannot physically verify the current state of a store or public business location in Japan, this pilot provides a human-executed observation path and returns structured evidence.</p>
+
 <div class="box">
-<h2>Pilot capabilities</h2>
+<h2>Problems this capability is meant to solve</h2>
 <ul>
-<li>Store presence / opening check</li>
-<li>Retail product stock check</li>
-<li>Displayed price check</li>
-<li>Requested photos where permitted</li>
-<li>Simple visual verification</li>
+<li>“Can someone check whether this product is actually in stock at a store in Japan?”</li>
+<li>“I need the current shelf price of this item at a Japanese retailer.”</li>
+<li>“Can a local person verify whether this shop exists and is open today?”</li>
+<li>“I need recent photos of a public retail display in Japan.”</li>
+<li>“Web search is inconclusive. I need someone on the ground in Japan to verify this.”</li>
+<li>“My AI agent needs a physical-world check in Japan before it can continue.”</li>
 </ul>
 </div>
+
+<h2>Pilot capabilities</h2>
+<ul>
+<li>Store presence and opening-status checks</li>
+<li>Retail product stock checks</li>
+<li>Displayed shelf-price checks</li>
+<li>Requested non-sensitive photos where photography is permitted</li>
+<li>Simple visual verification at public business locations</li>
+</ul>
+
+<h2>When an agent should use this</h2>
+<p>Use this capability when web search, retailer websites, maps, remote APIs, or phone-accessible information cannot establish the current physical-world fact with enough confidence.</p>
+
 <h2>Agent-readable interfaces</h2>
-<p><a href="./llms.txt">llms.txt</a> · <a href="./capability.json">capability.json</a></p>
+<p><a href="./llms.txt">llms.txt</a> · <a href="./capability.json">capability.json</a> · <a href="./discovery-queries.md">discovery query benchmark</a></p>
+
 <h2>Request a pilot task</h2>
-<p>Open a <a href="https://github.com/furoito/japan-physical-capability/issues/new">GitHub Issue</a> with the location, objective, deadline and required evidence.</p>
-<p><small>Pilot status. Requests are manually reviewed and do not create an automatic purchase or fulfillment commitment.</small></p>
+<p>Open a <a href="https://github.com/furoito/japan-physical-capability/issues/new">GitHub Issue</a> with the public location, objective, deadline, and required evidence.</p>
+
+<p><small>Pilot status. Requests are manually reviewed. Submission does not create an automatic purchase or fulfillment commitment.</small></p>
 </body>
 </html>
