@@ -411,6 +411,13 @@ Deno.serve(async (req) => {
     const fnIndex = parts.lastIndexOf("japan-physical-capability-api");
     const path = fnIndex >= 0 ? parts.slice(fnIndex + 1) : parts;
 
+    if (req.method === "GET" && path.length === 1 && path[0] === "health") {
+      const client = db();
+      const { count, error } = await client.from("capability_jobs").select("id", { count: "exact", head: true });
+      if (error) throw error;
+      return json(req, { ok: true, service: "japan-physical-capability-api", version: "0.3.0", jobs: count ?? 0 });
+    }
+
     if (req.method === "POST" && path.length === 1 && path[0] === "requests") return await createRequest(req);
     if (path.length === 2 && path[0] === "requests" && req.method === "GET") return await requestStatus(req, path[1]);
     if (path.length === 3 && path[0] === "requests" && path[2] === "cancel" && req.method === "POST") return await cancelRequest(req, path[1]);
