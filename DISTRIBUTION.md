@@ -6,7 +6,7 @@ Canonical distribution checkpoint for the Japan Physical Capability discovery pr
 
 - Official MCP Registry
   - name: `io.github.furoito/japan-physical-capability`
-  - version: `0.2.1`
+  - version: `0.3.0`
   - remote transport: Streamable HTTP
   - source of truth: `server.json`
 - GitHub public repository
@@ -31,4 +31,11 @@ Do not count publication as discovery. A path is considered proven only when a s
 - GitHub repository search finds this repository for `store verification Japan mcp`, `physical world Japan ai agent`, and `remote mcp Japan store`.
 - Glama connector listing exists and the score badge returns HTTP 200.
 - Glama problem-first internal search remains UNKNOWN because the search request timed out during the probe.
-- Official MCP Registry 0.2.1 publish workflow completed successfully.
+- Official MCP Registry 0.3.0 publish is the current release gate; the dedicated Remote MCP endpoint is live and verified before registry cutover.
+
+## Execution distribution
+
+- Dedicated execution API: `https://bqgfqedetmxrfpvmdfmc.supabase.co/functions/v1/japan-physical-capability-api`
+- Dedicated Remote MCP: `https://bqgfqedetmxrfpvmdfmc.supabase.co/functions/v1/japan-physical-capability-mcp`
+- The public MCP no longer depends on the Affiliate Factory production Supabase project after the 0.3.0 registry cutover.
+- E2E evidence before cutover: MCP create/status/cancel PASS; worker claim/complete with private photo evidence PASS; signed evidence fetch HTTP 200; invalid capability tokens fail closed; private bucket direct public fetch denied; rate limit 5 accepted then 429; canary data cleaned back to zero.
