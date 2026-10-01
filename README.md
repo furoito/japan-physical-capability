@@ -12,7 +12,7 @@ The public Remote MCP exposes:
 - `get_external_execution_status`
 - `cancel_external_execution_request`
 
-The create tool accepts a free-form objective, optional location, optional maximum budget metadata, deadline, evidence requirements, constraints, and a retry-safe idempotency key.
+The create tool accepts a free-form objective, optional location, optional `max_budget_jpy` metadata, deadline, evidence requirements, constraints, and a retry-safe idempotency key.
 
 Requests enter `pending_review`. No payment, purchase, worker hire, contract, or fulfillment commitment is created automatically.
 
