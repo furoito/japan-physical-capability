@@ -6,7 +6,7 @@ Canonical distribution checkpoint for the Japan Physical Capability discovery pr
 
 - Official MCP Registry
   - name: `io.github.furoito/japan-physical-capability`
-  - version: `0.3.0`
+  - version: `0.4.0`
   - remote transport: Streamable HTTP
   - source of truth: `server.json`
 - GitHub public repository
@@ -31,7 +31,7 @@ Do not count publication as discovery. A path is considered proven only when a s
 - GitHub repository search finds this repository for `store verification Japan mcp`, `physical world Japan ai agent`, and `remote mcp Japan store`.
 - Glama connector listing exists and the score badge returns HTTP 200.
 - Glama problem-first internal search remains UNKNOWN because the search request timed out during the probe.
-- Official MCP Registry 0.3.0 publish is the current release gate; the dedicated Remote MCP endpoint is live and verified before registry cutover.
+- Official MCP Registry v0.4.0 is published; duplicate-version republish attempts are expected to be rejected.
 
 ## Execution distribution
 
