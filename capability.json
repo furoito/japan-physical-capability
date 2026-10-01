@@ -48,9 +48,12 @@
     "timestamp"
   ],
   "execution": {
-    "mode": "manual-pilot",
+    "mode": "manual-review-live-pilot",
     "automatic_payment": false,
-    "automatic_commitment": false
+    "automatic_commitment": false,
+    "api_endpoint": "https://bqgfqedetmxrfpvmdfmc.supabase.co/functions/v1/japan-physical-capability-api",
+    "retry_safe_create": true,
+    "private_evidence": true
   },
   "request_url": "https://github.com/furoito/japan-physical-capability/issues/new",
   "human_page": "https://furoito.github.io/japan-physical-capability/",
@@ -59,10 +62,13 @@
   "mcp": {
     "registry_name": "io.github.furoito/japan-physical-capability",
     "transport": "streamable-http",
-    "endpoint": "https://uiiepdcaepkawfwaiyuq.supabase.co/functions/v1/japan-physical-capability-mcp",
+    "endpoint": "https://bqgfqedetmxrfpvmdfmc.supabase.co/functions/v1/japan-physical-capability-mcp",
     "tools": [
       "check_service_fit",
-      "prepare_verification_request"
+      "prepare_verification_request",
+      "create_verification_request",
+      "get_verification_status",
+      "cancel_verification_request"
     ],
     "registry_url": "https://registry.modelcontextprotocol.io/?q=io.github.furoito%2Fjapan-physical-capability"
   }
