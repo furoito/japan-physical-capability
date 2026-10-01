@@ -1,0 +1,20 @@
+{
+  "$schema": "https://static.modelcontextprotocol.io/schemas/2025-12-11/server.schema.json",
+  "name": "io.github.furoito/japan-physical-capability",
+  "title": "Japan Physical Capability",
+  "description": "Physical-world store verification in Japan for AI agents with structured evidence.",
+  "websiteUrl": "https://furoito.github.io/japan-physical-capability/",
+  "repository": {
+    "url": "https://github.com/furoito/japan-physical-capability",
+    "source": "github",
+    "id": "1399652941",
+    "subfolder": "supabase/functions/japan-physical-capability-mcp"
+  },
+  "version": "0.2.0",
+  "remotes": [
+    {
+      "type": "streamable-http",
+      "url": "https://uiiepdcaepkawfwaiyuq.supabase.co/functions/v1/japan-physical-capability-mcp"
+    }
+  ]
+}
