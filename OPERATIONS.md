@@ -53,3 +53,9 @@ The probe passes only if all are true:
 - regulated or private-location tasks
 
 These are added only after repeated real requests show the need.
+
+## Live pilot status
+
+The execution API and MCP v0.3.0 run on a dedicated Supabase project. Request creation is retry-safe when the same idempotency key is reused. Evidence is private and returned through temporary signed URLs.
+
+Public operator authentication is intentionally disabled until a dedicated operator secret/auth surface is provisioned. During the first Reality Probe, manual review/approval is performed through the authenticated admin control plane; the worker receives only the generated bearer capability URL.
