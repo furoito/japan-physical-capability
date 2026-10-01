@@ -104,7 +104,7 @@ function cleanArray(value) {
 }
 
 function classify(location, objective) {
-  const text = `${location}\n${objective}`;
+  const text = `${location ?? ""}\n${objective}`;
   const forbidden = [
     /private person|private individual|home address|residence/i,
     /surveillance|stalk|track a person|follow a person/i,
