@@ -6,10 +6,11 @@ alter table public.capability_jobs
 
 alter table public.capability_jobs
   add column if not exists request_kind text not null default 'physical_verification',
-  add column if not exists max_budget_amount numeric,
-  add column if not exists max_budget_currency text;
+  add column if not exists max_budget_jpy integer;
 
--- Canonical constraints:
+-- Canonical constraints in the live schema:
 -- request_kind in ('physical_verification','external_execution')
--- max_budget_amount is null or >= 0
--- max_budget_currency is null or three uppercase ASCII letters
+-- max_budget_jpy is null or between 0 and 10000000
+--
+-- Generic external-execution requests may omit location.
+-- max_budget_jpy is non-binding metadata only; it does not authorize spending.
