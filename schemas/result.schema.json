@@ -1,0 +1,26 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://furoito.github.io/japan-physical-capability/schemas/result.schema.json",
+  "title": "Japan Physical Verification Result",
+  "type": "object",
+  "required": ["request_id", "status"],
+  "properties": {
+    "request_id": {"type": "string", "format": "uuid"},
+    "status": {"enum": ["pending_review", "open", "claimed", "completed", "rejected", "cancelled"]},
+    "result_summary": {"type": ["string", "null"]},
+    "observations": {"type": ["object", "null"]},
+    "evidence": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["media_type", "url"],
+        "properties": {
+          "media_type": {"type": "string"},
+          "caption": {"type": ["string", "null"]},
+          "url": {"type": "string", "format": "uri"},
+          "expires_in_seconds": {"type": "integer"}
+        }
+      }
+    }
+  }
+}

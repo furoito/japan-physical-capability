@@ -1,0 +1,11 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Japan Physical Capability — Operator</title>
+<style>body{font-family:system-ui,sans-serif;max-width:900px;margin:32px auto;padding:0 16px;line-height:1.5}input,button{font:inherit}input{width:100%;padding:8px}button{padding:8px 12px;margin:4px}.job{border:1px solid #ccc;border-radius:12px;padding:14px;margin:12px 0}pre{white-space:pre-wrap}</style><script src="./config.js"></script></head>
+<body><h1>Operator queue</h1><p>This page never stores the operator key persistently.</p><label>Operator key<input id="key" type="password" autocomplete="off"></label><button id="load">Load pending review</button><div id="out"></div>
+<script>
+const api=window.CAPABILITY_EXECUTION_API,key=document.querySelector('#key'),out=document.querySelector('#out');
+function esc(v){return String(v).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));}
+async function load(){const r=await fetch(`${api}/operator/jobs?status=pending_review`,{headers:{'x-operator-key':key.value}});const d=await r.json();if(!r.ok){out.textContent='Error: '+(d.error||r.status);return;}out.innerHTML=(d.jobs||[]).map(j=>`<div class="job" data-id="${j.id}"><b>${esc(j.location)}</b><pre>${esc(j.objective)}</pre><button data-a="approve">Approve</button><button data-a="reject">Reject</button><div class="result"></div></div>`).join('')||'<p>No pending jobs.</p>';}
+out.onclick=async e=>{const b=e.target.closest('button');if(!b)return;const card=b.closest('.job'),id=card.dataset.id,action=b.dataset.a;b.disabled=true;const r=await fetch(`${api}/operator/jobs/${id}/${action}`,{method:'POST',headers:{'content-type':'application/json','x-operator-key':key.value},body:action==='reject'?JSON.stringify({reason:'outside pilot or not ready'}):'{}'});const d=await r.json();card.querySelector('.result').textContent=r.ok?(d.worker_url||JSON.stringify(d)):('Error: '+(d.error||r.status));if(r.ok&&action==='approve') card.querySelector('.result').innerHTML=`Worker URL: <a href="${esc(d.worker_url)}">${esc(d.worker_url)}</a>`;b.disabled=false;};
+document.querySelector('#load').onclick=load;
+</script></body></html>

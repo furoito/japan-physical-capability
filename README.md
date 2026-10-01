@@ -35,3 +35,7 @@ Remote MCP:
 - Endpoint: `https://uiiepdcaepkawfwaiyuq.supabase.co/functions/v1/japan-physical-capability-mcp`
 - Official MCP Registry: https://registry.modelcontextprotocol.io/?q=io.github.furoito%2Fjapan-physical-capability
 - Tools: `check_service_fit`, `prepare_verification_request`
+
+## Execution core (source-ready, not live)
+
+The repository now contains a bounded pilot execution core for the first real request: request state, manual operator review, one-worker claim/completion, private evidence storage, and a next-version MCP create/status/cancel flow. It is intentionally not deployed into the Affiliate Factory Supabase project. See `EXECUTION_CORE.md` and `OPERATIONS.md`.

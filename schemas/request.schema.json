@@ -1,0 +1,16 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://furoito.github.io/japan-physical-capability/schemas/request.schema.json",
+  "title": "Japan Physical Verification Request",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["location", "objective"],
+  "properties": {
+    "location": {"type": "string", "minLength": 2, "maxLength": 500},
+    "objective": {"type": "string", "minLength": 3, "maxLength": 4000},
+    "deadline": {"type": ["string", "null"], "format": "date-time"},
+    "evidence_requirements": {"type": "array", "maxItems": 20, "items": {"type": "string", "maxLength": 500}},
+    "constraints": {"type": "array", "maxItems": 20, "items": {"type": "string", "maxLength": 500}},
+    "idempotency_key": {"type": "string", "minLength": 8, "maxLength": 200}
+  }
+}

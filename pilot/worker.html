@@ -1,0 +1,48 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Japan Physical Capability — Worker</title>
+<style>body{font-family:system-ui,sans-serif;max-width:720px;margin:32px auto;padding:0 16px;line-height:1.5}input,textarea,button{font:inherit}textarea{width:100%;min-height:110px}button{padding:10px 14px;margin:6px 6px 6px 0}.card{border:1px solid #ccc;border-radius:12px;padding:16px;margin:16px 0}.muted{color:#666}pre{white-space:pre-wrap;overflow-wrap:anywhere}</style>
+<script src="./config.js"></script>
+</head>
+<body>
+<h1>Japan Physical Capability</h1>
+<p class="muted">Pilot worker surface. The task must stay within public-location and safety limits.</p>
+<div id="status" class="card">Loading…</div>
+<div id="task" class="card" hidden></div>
+<div id="actions" hidden>
+  <button id="claim">Claim task</button>
+  <form id="complete" hidden>
+    <h2>Complete</h2>
+    <label>Summary<br><textarea name="summary" required></textarea></label><br>
+    <label>Observations JSON<br><textarea name="observations" placeholder='{"stock":"in_stock","displayed_price_jpy":1980}'></textarea></label><br>
+    <label>Evidence photos (max 5, 8MB each)<br><input type="file" name="evidence" accept="image/jpeg,image/png,image/webp" multiple></label><br>
+    <button type="submit">Submit result</button>
+  </form>
+</div>
+<script>
+const api = window.CAPABILITY_EXECUTION_API;
+const job = new URL(location.href).searchParams.get('job');
+const frag = new URLSearchParams(location.hash.replace(/^#/,''));
+const token = frag.get('token');
+const status = document.querySelector('#status');
+const task = document.querySelector('#task');
+const actions = document.querySelector('#actions');
+const claim = document.querySelector('#claim');
+const complete = document.querySelector('#complete');
+function auth(){return {'authorization':'Worker '+token};}
+async function load(){
+  if(!api || !job || !token){ status.textContent='Missing worker configuration or token.'; return; }
+  const r=await fetch(`${api}/worker/jobs/${encodeURIComponent(job)}`,{headers:auth()});
+  const d=await r.json(); if(!r.ok){status.textContent='Unable to load task: '+(d.error||r.status);return;}
+  status.textContent='Status: '+d.status;
+  task.hidden=false; task.innerHTML=`<h2>Task</h2><p><b>Location</b><br>${esc(d.location)}</p><p><b>Objective</b><br>${esc(d.objective)}</p><p><b>Deadline</b><br>${esc(d.deadline||'Not specified')}</p><p><b>Evidence</b><br>${esc((d.evidence_requirements||[]).join('\n')||'Not specified')}</p><p><b>Constraints</b><br>${esc((d.constraints||[]).join('\n')||'Standard pilot limits')}</p>`;
+  actions.hidden=false; claim.hidden=d.status!=='open'; complete.hidden=d.status!=='claimed';
+}
+function esc(v){return String(v).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));}
+claim.onclick=async()=>{claim.disabled=true;const r=await fetch(`${api}/worker/jobs/${encodeURIComponent(job)}/claim`,{method:'POST',headers:auth()});const d=await r.json();status.textContent=r.ok?'Claimed.':('Claim failed: '+(d.error||r.status));if(r.ok)load();claim.disabled=false;};
+complete.onsubmit=async(e)=>{e.preventDefault();const button=complete.querySelector('button');button.disabled=true;const form=new FormData(complete);const r=await fetch(`${api}/worker/jobs/${encodeURIComponent(job)}/complete`,{method:'POST',headers:auth(),body:form});const d=await r.json();status.textContent=r.ok?'Completed.':('Submit failed: '+(d.error||r.status));if(r.ok)load();button.disabled=false;};
+load();
+</script>
+</body></html>
