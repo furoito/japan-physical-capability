@@ -118,15 +118,15 @@ async function addEvent(client, jobId, eventType, actorType, payload = {}) {
 }
 
 async function getJobByRequesterToken(client, id, token) {
-  const tokenHash = await tokenHash(token);
-  const { data, error } = await client.from("capability_jobs").select("*").eq("id", id).eq("requester_token_hash", tokenHash).maybeSingle();
+  const tokenDigest = await tokenHash(token);
+  const { data, error } = await client.from("capability_jobs").select("*").eq("id", id).eq("requester_token_hash", tokenDigest).maybeSingle();
   if (error) throw error;
   return data;
 }
 
 async function getJobByWorkerToken(client, id, token) {
-  const tokenHash = await tokenHash(token);
-  const { data, error } = await client.from("capability_jobs").select("*").eq("id", id).eq("worker_token_hash", tokenHash).maybeSingle();
+  const tokenDigest = await tokenHash(token);
+  const { data, error } = await client.from("capability_jobs").select("*").eq("id", id).eq("worker_token_hash", tokenDigest).maybeSingle();
   if (error) throw error;
   return data;
 }
