@@ -167,9 +167,25 @@ async function createRequest(req) {
   const body = await req.json().catch(() => null);
   if (!body || typeof body !== "object") return json(req, { error: "invalid_json" }, 400);
 
+  const requestKind = cleanString(body.request_kind, 64) || "physical_verification";
+  if (!["physical_verification", "external_execution"].includes(requestKind)) {
+    return json(req, { error: "invalid_request_kind" }, 400);
+  }
+
   const location = cleanString(body.location, 500);
   const objective = cleanString(body.objective, 4000);
-  if (location.length < 2 || objective.length < 3) return json(req, { error: "location_and_objective_required" }, 400);
+  if (objective.length < 3) return json(req, { error: "objective_required" }, 400);
+  if (requestKind === "physical_verification" && location.length < 2) {
+    return json(req, { error: "location_required_for_physical_verification" }, 400);
+  }
+
+  const rawBudget = body.max_budget_jpy;
+  const maxBudgetJpy = rawBudget === undefined || rawBudget === null || rawBudget === ""
+    ? null
+    : Number(rawBudget);
+  if (maxBudgetJpy !== null && (!Number.isInteger(maxBudgetJpy) || maxBudgetJpy < 0)) {
+    return json(req, { error: "invalid_max_budget_jpy" }, 400);
+  }
 
   const gate = classify(location, objective);
   if (!gate.allowed) return json(req, { error: gate.reason }, 400);
@@ -217,8 +233,10 @@ async function createRequest(req) {
     requester_token_hash: requesterTokenHash,
     idempotency_key_hash: idempotencyHash,
     source_fingerprint: sourceFingerprint,
-    location,
+    request_kind: requestKind,
+    location: location || null,
     objective,
+    max_budget_jpy: maxBudgetJpy,
     deadline: deadline?.toISOString() ?? null,
     evidence_requirements: cleanArray(body.evidence_requirements),
     constraints: cleanArray(body.constraints),
@@ -244,7 +262,7 @@ async function createRequest(req) {
   }
   if (error) throw error;
 
-  await addEvent(client, job.id, "request_created", "requester", { source: "public_api" });
+  await addEvent(client, job.id, "request_created", "requester", { source: "public_api", request_kind: requestKind });
   return json(req, {
     request_id: job.id,
     status: job.status,
@@ -265,8 +283,10 @@ async function requestStatus(req, id) {
   const result = {
     request_id: job.id,
     status: job.status,
+    request_kind: job.request_kind,
     location: job.location,
     objective: job.objective,
+    max_budget_jpy: job.max_budget_jpy,
     deadline: job.deadline,
     evidence_requirements: job.evidence_requirements,
     constraints: job.constraints,
@@ -308,7 +328,7 @@ async function operatorList(req, url) {
   if (!allowed.has(requested)) return json(req, { error: "invalid_status" }, 400);
   const client = db();
   const { data, error } = await client.from("capability_jobs")
-    .select("id,status,location,objective,deadline,evidence_requirements,constraints,created_at,updated_at")
+    .select("id,status,request_kind,location,objective,max_budget_jpy,deadline,evidence_requirements,constraints,created_at,updated_at")
     .eq("status", requested)
     .order("created_at", { ascending: true })
     .limit(100);
@@ -377,8 +397,10 @@ async function workerJob(req, id) {
   return json(req, {
     request_id: job.id,
     status: job.status,
+    request_kind: job.request_kind,
     location: job.location,
     objective: job.objective,
+    max_budget_jpy: job.max_budget_jpy,
     deadline: job.deadline,
     evidence_requirements: job.evidence_requirements,
     constraints: job.constraints,
@@ -474,7 +496,7 @@ Deno.serve(async (req) => {
       const client = db();
       const { count, error } = await client.from("capability_jobs").select("id", { count: "exact", head: true });
       if (error) throw error;
-      return json(req, { ok: true, service: "japan-physical-capability-api", version: "0.3.0", jobs: count ?? 0 });
+      return json(req, { ok: true, service: "japan-physical-capability-api", version: "0.4.0", jobs: count ?? 0 });
     }
 
     if (req.method === "POST" && path.length === 1 && path[0] === "requests") return await createRequest(req);
