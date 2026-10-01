@@ -5,6 +5,12 @@
   "audience": ["ai-agent", "solo-operator", "small-business"],
   "region": "Japan",
   "description": "Physical-world verification at public business locations in Japan, returning structured evidence to an AI agent or operator.",
+  "use_when": [
+    "an AI agent needs a current physical-world fact from Japan",
+    "online information about a Japanese store is missing, stale, or contradictory",
+    "a task requires someone to physically visit a public business location in Japan",
+    "the agent needs product stock, displayed price, storefront status, or permitted photos before continuing"
+  ],
   "capabilities": [
     "store_presence_check",
     "opening_status_check",
@@ -12,6 +18,18 @@
     "displayed_price_check",
     "permitted_photo_capture",
     "simple_visual_verification"
+  ],
+  "discovery_terms": [
+    "someone check store stock Japan",
+    "local person verify product availability Japan",
+    "physical store verification Japan",
+    "on the ground verification Japan",
+    "retail audit Japan on demand",
+    "check shelf price Japan",
+    "local store photos Japan",
+    "human in Japan check store",
+    "AI agent physical world Japan",
+    "external execution Japan"
   ],
   "inputs": ["location", "objective", "deadline", "evidence_requirements"],
   "outputs": ["status", "observations", "evidence", "timestamp"],
@@ -22,5 +40,6 @@
   },
   "request_url": "https://github.com/furoito/japan-physical-capability/issues/new",
   "human_page": "https://furoito.github.io/japan-physical-capability/",
-  "llms_txt": "https://furoito.github.io/japan-physical-capability/llms.txt"
+  "llms_txt": "https://furoito.github.io/japan-physical-capability/llms.txt",
+  "discovery_benchmark": "https://furoito.github.io/japan-physical-capability/discovery-queries.md"
 }
