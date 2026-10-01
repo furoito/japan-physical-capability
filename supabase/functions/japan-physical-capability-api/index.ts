@@ -55,6 +55,22 @@ function newToken() {
   return base64url(crypto.getRandomValues(new Uint8Array(32)));
 }
 
+async function hmacToken(purpose, value) {
+  const key = await crypto.subtle.importKey(
+    "raw",
+    new TextEncoder().encode(secretKey()),
+    { name: "HMAC", hash: "SHA-256" },
+    false,
+    ["sign"],
+  );
+  const signature = await crypto.subtle.sign(
+    "HMAC",
+    key,
+    new TextEncoder().encode(`${purpose}\n${value}`),
+  );
+  return base64url(new Uint8Array(signature));
+}
+
 async function sha256(value) {
   const digest = await crypto.subtle.digest("SHA-256", new TextEncoder().encode(value));
   return Array.from(new Uint8Array(digest)).map((b) => b.toString(16).padStart(2, "0")).join("");
@@ -163,6 +179,31 @@ async function createRequest(req) {
   if (deadline && Number.isNaN(deadline.getTime())) return json(req, { error: "invalid_deadline" }, 400);
 
   const client = db();
+  const idemRaw = cleanString(req.headers.get("x-idempotency-key") ?? body.idempotency_key, 200);
+  if (idemRaw && idemRaw.length < 8) return json(req, { error: "idempotency_key_too_short" }, 400);
+  const idempotencyHash = idemRaw ? await tokenHash(idemRaw) : null;
+  const requesterToken = idemRaw ? await hmacToken("requester", idemRaw) : newToken();
+  const requesterTokenHash = await tokenHash(requesterToken);
+
+  if (idempotencyHash) {
+    const { data: existing, error: existingError } = await client.from("capability_jobs")
+      .select("id,status,created_at")
+      .eq("idempotency_key_hash", idempotencyHash)
+      .maybeSingle();
+    if (existingError) throw existingError;
+    if (existing) {
+      return json(req, {
+        request_id: existing.id,
+        status: existing.status,
+        status_token: requesterToken,
+        created_at: existing.created_at,
+        fulfillment_commitment: false,
+        automatic_payment: false,
+        idempotent_replay: true,
+      });
+    }
+  }
+
   const sourceFingerprint = await privateFingerprintHash(clientFingerprint(req));
   const since = new Date(Date.now() - 3600_000).toISOString();
   const { count, error: countError } = await client.from("capability_jobs")
@@ -172,17 +213,7 @@ async function createRequest(req) {
   if (countError) throw countError;
   if ((count ?? 0) >= MAX_REQUESTS_PER_HOUR) return json(req, { error: "rate_limited" }, 429);
 
-  const requesterToken = newToken();
-  const requesterTokenHash = await tokenHash(requesterToken);
-  const idemRaw = cleanString(req.headers.get("x-idempotency-key") ?? body.idempotency_key, 200);
-  const idempotencyHash = idemRaw ? await tokenHash(idemRaw) : null;
-
-  if (idempotencyHash) {
-    const { data: existing } = await client.from("capability_jobs").select("id,status,created_at").eq("idempotency_key_hash", idempotencyHash).maybeSingle();
-    if (existing) return json(req, { error: "idempotency_key_already_used", request_id: existing.id, status: existing.status }, 409);
-  }
-
-  const { data: job, error } = await client.from("capability_jobs").insert({
+  let { data: job, error } = await client.from("capability_jobs").insert({
     requester_token_hash: requesterTokenHash,
     idempotency_key_hash: idempotencyHash,
     source_fingerprint: sourceFingerprint,
@@ -192,6 +223,25 @@ async function createRequest(req) {
     evidence_requirements: cleanArray(body.evidence_requirements),
     constraints: cleanArray(body.constraints),
   }).select("id,status,created_at").single();
+
+  if (error && idempotencyHash && error.code === "23505") {
+    const replay = await client.from("capability_jobs")
+      .select("id,status,created_at")
+      .eq("idempotency_key_hash", idempotencyHash)
+      .maybeSingle();
+    if (replay.error) throw replay.error;
+    if (replay.data) {
+      return json(req, {
+        request_id: replay.data.id,
+        status: replay.data.status,
+        status_token: requesterToken,
+        created_at: replay.data.created_at,
+        fulfillment_commitment: false,
+        automatic_payment: false,
+        idempotent_replay: true,
+      });
+    }
+  }
   if (error) throw error;
 
   await addEvent(client, job.id, "request_created", "requester", { source: "public_api" });
@@ -236,6 +286,7 @@ async function cancelRequest(req, id) {
   const client = db();
   const job = await getJobByRequesterToken(client, id, token);
   if (!job) return json(req, { error: "not_found" }, 404);
+  if (job.status === "cancelled") return json(req, { request_id: id, status: "cancelled", idempotent_replay: true });
   if (!["pending_review", "open"].includes(job.status)) return json(req, { error: "cannot_cancel_in_current_state", status: job.status }, 409);
   const now = new Date().toISOString();
   const { error } = await client.from("capability_jobs").update({ status: "cancelled", cancelled_at: now, updated_at: now }).eq("id", id).eq("status", job.status);
@@ -271,10 +322,18 @@ async function operatorApprove(req, id) {
   const { data: current, error: readError } = await client.from("capability_jobs").select("id,status").eq("id", id).maybeSingle();
   if (readError) throw readError;
   if (!current) return json(req, { error: "not_found" }, 404);
-  if (current.status !== "pending_review") return json(req, { error: "not_pending_review", status: current.status }, 409);
-
-  const workerToken = newToken();
+  const workerToken = await hmacToken("worker", id);
   const workerTokenHash = await tokenHash(workerToken);
+  const workerBase = Deno.env.get("CAPABILITY_WORKER_URL") ?? "https://furoito.github.io/japan-physical-capability/pilot/worker.html";
+  if (current.status === "open") {
+    return json(req, {
+      request_id: id,
+      status: "open",
+      worker_url: `${workerBase}?job=${encodeURIComponent(id)}#token=${encodeURIComponent(workerToken)}`,
+      idempotent_replay: true,
+    });
+  }
+  if (current.status !== "pending_review") return json(req, { error: "not_pending_review", status: current.status }, 409);
   const now = new Date().toISOString();
   const { error } = await client.from("capability_jobs").update({
     status: "open",
@@ -354,6 +413,7 @@ async function workerComplete(req, id) {
   const client = db();
   const job = await getJobByWorkerToken(client, id, token);
   if (!job) return json(req, { error: "not_found" }, 404);
+  if (job.status === "completed") return json(req, { request_id: id, status: "completed", idempotent_replay: true });
   if (job.status !== "claimed") return json(req, { error: "not_claimed", status: job.status }, 409);
 
   const form = await req.formData();
