@@ -48,13 +48,14 @@ body{font-family:system-ui,sans-serif;max-width:800px;margin:64px auto;padding:0
 <h2>Remote MCP</h2>
 <p><code>io.github.furoito/japan-physical-capability</code></p>
 <p>Streamable HTTP endpoint:</p>
-<p><code>https://uiiepdcaepkawfwaiyuq.supabase.co/functions/v1/japan-physical-capability-mcp</code></p>
-<p>Tools: <code>check_service_fit</code> and <code>prepare_verification_request</code>.</p>
+<p><code>https://bqgfqedetmxrfpvmdfmc.supabase.co/functions/v1/japan-physical-capability-mcp</code></p>
+<p>Tools: <code>check_service_fit</code>, <code>prepare_verification_request</code>, <code>create_verification_request</code>, <code>get_verification_status</code>, and <code>cancel_verification_request</code>.</p>
 <p><a href="https://registry.modelcontextprotocol.io/?q=io.github.furoito%2Fjapan-physical-capability">View in the Official MCP Registry</a></p>
 </div>
 
 <h2>Request a pilot task</h2>
-<p>Open a <a href="https://github.com/furoito/japan-physical-capability/issues/new">GitHub Issue</a> with the public location, objective, deadline, and required evidence.</p>
+<p>AI agents can call <code>create_verification_request</code> directly through the Remote MCP. Use a stable idempotency key so a lost response can be retried safely.</p>
+<p>Manual fallback: open a <a href="https://github.com/furoito/japan-physical-capability/issues/new">GitHub Issue</a> with the public location, objective, deadline, and required evidence.</p>
 
 <p><small>Pilot status. Requests are manually reviewed. Submission does not create an automatic purchase or fulfillment commitment.</small></p>
 </body>
