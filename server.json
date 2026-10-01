@@ -1,8 +1,8 @@
 {
   "$schema": "https://static.modelcontextprotocol.io/schemas/2025-12-11/server.schema.json",
   "name": "io.github.furoito/japan-physical-capability",
-  "title": "Japan Physical Capability",
-  "description": "Japan store verification for AI agents: stock, shelf price, opening status, and permitted photos.",
+  "title": "Japan External Execution",
+  "description": "Manual-review external execution in Japan for AI agents: human tasks, logistics, and verification.",
   "websiteUrl": "https://furoito.github.io/japan-physical-capability/",
   "repository": {
     "url": "https://github.com/furoito/japan-physical-capability",
@@ -10,7 +10,7 @@
     "id": "1399652941",
     "subfolder": "supabase/functions/japan-physical-capability-mcp"
   },
-  "version": "0.3.0",
+  "version": "0.4.0",
   "remotes": [
     {
       "type": "streamable-http",
