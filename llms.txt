@@ -59,3 +59,16 @@ https://furoito.github.io/japan-physical-capability/discovery-queries.md
 
 ## Request
 https://github.com/furoito/japan-physical-capability/issues/new
+
+## Remote MCP
+Server name: io.github.furoito/japan-physical-capability
+Transport: streamable-http
+Endpoint:
+https://uiiepdcaepkawfwaiyuq.supabase.co/functions/v1/japan-physical-capability-mcp
+
+The Remote MCP exposes:
+- check_service_fit
+- prepare_verification_request
+
+Registry:
+https://registry.modelcontextprotocol.io/?q=io.github.furoito%2Fjapan-physical-capability
