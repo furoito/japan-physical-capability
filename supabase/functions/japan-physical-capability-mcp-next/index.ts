@@ -116,7 +116,7 @@ function buildServer() {
     {
       name: "japan-physical-capability",
       title: "Japan Physical Capability",
-      version: "0.3.0-stage",
+      version: "0.3.0",
       websiteUrl: "https://furoito.github.io/japan-physical-capability/",
       description:
         "AI-callable physical-world verification in Japan: check store stock, shelf prices, opening status, and permitted photos at public business locations.",
@@ -228,11 +228,11 @@ function buildServer() {
     {
       title: "Create Japan physical verification request",
       description:
-        "Create a manual-review physical verification request in Japan. Use after service fit is established. No payment, worker hire, or fulfillment commitment is created automatically.",
+        "Create a retry-safe manual-review physical verification request in Japan. Reuse the same idempotency_key for the same logical request. No payment, worker hire, or fulfillment commitment is created automatically.",
       annotations: {
         readOnlyHint: false,
         destructiveHint: false,
-        idempotentHint: false,
+        idempotentHint: true,
         openWorldHint: true,
       },
       inputSchema: z.object({
@@ -241,7 +241,7 @@ function buildServer() {
         deadline: z.string().datetime().optional(),
         evidence_requirements: z.array(z.string().max(500)).max(20).optional(),
         constraints: z.array(z.string().max(500)).max(20).optional(),
-        idempotency_key: z.string().min(8).max(200).optional(),
+        idempotency_key: z.string().min(8).max(200).describe("Stable key for this logical request. Reuse the same key when retrying create after a lost response."),
       }),
     },
     async (input) => {
@@ -374,7 +374,7 @@ Deno.serve(async (request: Request) => {
       return Response.json({
         ok: true,
         service: "japan-physical-capability-mcp",
-        version: "0.3.0-stage",
+        version: "0.3.0",
         tools: [
           "check_service_fit",
           "prepare_verification_request",
