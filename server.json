@@ -2,7 +2,7 @@
   "$schema": "https://static.modelcontextprotocol.io/schemas/2025-12-11/server.schema.json",
   "name": "io.github.furoito/japan-physical-capability",
   "title": "Japan External Execution",
-  "description": "External execution in Japan for AI agents: field checks, phone calls, logistics, and human actions.",
+  "description": "Manual-review external execution in Japan for AI agents: human tasks, logistics, and verification.",
   "websiteUrl": "https://furoito.github.io/japan-physical-capability/",
   "repository": {
     "url": "https://github.com/furoito/japan-physical-capability",
@@ -10,7 +10,7 @@
     "id": "1399652941",
     "subfolder": "supabase/functions/japan-physical-capability-mcp"
   },
-  "version": "0.4.0",
+  "version": "0.4.1",
   "remotes": [
     {
       "type": "streamable-http",
