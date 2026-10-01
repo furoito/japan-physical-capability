@@ -95,12 +95,28 @@ function issueUrl(args: {
   return `https://github.com/furoito/japan-physical-capability/issues/new?${params.toString()}`;
 }
 
+
+const EXECUTION_API =
+  "https://bqgfqedetmxrfpvmdfmc.supabase.co/functions/v1/japan-physical-capability-api";
+
+async function executionApi(path: string, init: RequestInit = {}) {
+  const response = await fetch(`${EXECUTION_API}${path}`, init);
+  const payload = await response.json().catch(() => ({ error: "invalid_api_response" }));
+  if (!response.ok) {
+    const error = new Error(`${response.status}:${payload.error ?? "request_failed"}`);
+    (error as any).status = response.status;
+    (error as any).payload = payload;
+    throw error;
+  }
+  return payload;
+}
+
 function buildServer() {
   const server = new McpServer(
     {
       name: "japan-physical-capability",
       title: "Japan Physical Capability",
-      version: "0.2.1",
+      version: "0.3.0",
       websiteUrl: "https://furoito.github.io/japan-physical-capability/",
       description:
         "AI-callable physical-world verification in Japan: check store stock, shelf prices, opening status, and permitted photos at public business locations.",
@@ -206,12 +222,169 @@ function buildServer() {
     },
   );
 
+
+  server.registerTool(
+    "create_verification_request",
+    {
+      title: "Create Japan physical verification request",
+      description:
+        "Create a retry-safe manual-review physical verification request in Japan. Reuse the same idempotency_key for the same logical request. No payment, worker hire, or fulfillment commitment is created automatically.",
+      annotations: {
+        readOnlyHint: false,
+        destructiveHint: false,
+        idempotentHint: true,
+        openWorldHint: true,
+      },
+      inputSchema: z.object({
+        location: z.string().min(2).max(500),
+        objective: z.string().min(3).max(4000),
+        deadline: z.string().datetime().optional(),
+        evidence_requirements: z.array(z.string().max(500)).max(20).optional(),
+        constraints: z.array(z.string().max(500)).max(20).optional(),
+        idempotency_key: z.string().min(8).max(200).describe("Stable key for this logical request. Reuse the same key when retrying create after a lost response."),
+      }),
+    },
+    async (input) => {
+      try {
+        const result = await executionApi("/requests", {
+          method: "POST",
+          headers: {
+            "content-type": "application/json",
+            ...(input.idempotency_key
+              ? { "x-idempotency-key": input.idempotency_key }
+              : {}),
+          },
+          body: JSON.stringify(input),
+        });
+        return {
+          content: [{ type: "text", text: JSON.stringify(result) }],
+          structuredContent: result,
+          isError: false,
+        };
+      } catch (error) {
+        const output = {
+          error: "execution_api_request_failed",
+          detail: error instanceof Error ? error.message : String(error),
+        };
+        return {
+          content: [{ type: "text", text: JSON.stringify(output) }],
+          structuredContent: output,
+          isError: true,
+        };
+      }
+    },
+  );
+
+  server.registerTool(
+    "get_verification_status",
+    {
+      title: "Get Japan physical verification status",
+      description:
+        "Read the current request state and, when completed, receive structured observations and temporary signed evidence URLs.",
+      annotations: {
+        readOnlyHint: true,
+        destructiveHint: false,
+        idempotentHint: true,
+        openWorldHint: true,
+      },
+      inputSchema: z.object({
+        request_id: z.string().uuid(),
+        status_token: z.string().min(20),
+      }),
+    },
+    async ({ request_id, status_token }) => {
+      try {
+        const result = await executionApi(
+          `/requests/${encodeURIComponent(request_id)}`,
+          { headers: { authorization: `Bearer ${status_token}` } },
+        );
+        return {
+          content: [{ type: "text", text: JSON.stringify(result) }],
+          structuredContent: result,
+          isError: false,
+        };
+      } catch (error) {
+        const output = {
+          error: "execution_api_status_failed",
+          detail: error instanceof Error ? error.message : String(error),
+        };
+        return {
+          content: [{ type: "text", text: JSON.stringify(output) }],
+          structuredContent: output,
+          isError: true,
+        };
+      }
+    },
+  );
+
+  server.registerTool(
+    "cancel_verification_request",
+    {
+      title: "Cancel Japan physical verification request",
+      description:
+        "Cancel a request only while it is pending manual review or open. Claimed or completed work cannot be cancelled through this tool.",
+      annotations: {
+        readOnlyHint: false,
+        destructiveHint: true,
+        idempotentHint: true,
+        openWorldHint: true,
+      },
+      inputSchema: z.object({
+        request_id: z.string().uuid(),
+        status_token: z.string().min(20),
+      }),
+    },
+    async ({ request_id, status_token }) => {
+      try {
+        const result = await executionApi(
+          `/requests/${encodeURIComponent(request_id)}/cancel`,
+          {
+            method: "POST",
+            headers: { authorization: `Bearer ${status_token}` },
+          },
+        );
+        return {
+          content: [{ type: "text", text: JSON.stringify(result) }],
+          structuredContent: result,
+          isError: false,
+        };
+      } catch (error) {
+        const output = {
+          error: "execution_api_cancel_failed",
+          detail: error instanceof Error ? error.message : String(error),
+        };
+        return {
+          content: [{ type: "text", text: JSON.stringify(output) }],
+          structuredContent: output,
+          isError: true,
+        };
+      }
+    },
+  );
+
   return server;
 }
 
 const handler = createMcpHandler(() => buildServer());
 
 Deno.serve(async (request: Request) => {
+  if (request.method === "GET") {
+    const url = new URL(request.url);
+    if (url.pathname.endsWith("/health")) {
+      return Response.json({
+        ok: true,
+        service: "japan-physical-capability-mcp",
+        version: "0.3.0",
+        tools: [
+          "check_service_fit",
+          "prepare_verification_request",
+          "create_verification_request",
+          "get_verification_status",
+          "cancel_verification_request"
+        ]
+      });
+    }
+  }
   try {
     if (request.method === "POST") {
       const body = await request.clone().json().catch(() => null) as any;
