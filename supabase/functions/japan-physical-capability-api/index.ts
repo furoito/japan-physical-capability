@@ -60,10 +60,16 @@ async function sha256(value) {
   return Array.from(new Uint8Array(digest)).map((b) => b.toString(16).padStart(2, "0")).join("");
 }
 
-async function saltedHash(value) {
-  const salt = Deno.env.get("CAPABILITY_HASH_SALT");
-  if (!salt) throw new Error("CAPABILITY_HASH_SALT is required");
-  return sha256(`${salt}\n${value}`);
+async function tokenHash(value) {
+  // Requester and worker tokens are 256-bit random bearer capabilities.
+  // A one-way SHA-256 digest is sufficient for at-rest comparison.
+  return sha256(value);
+}
+
+async function privateFingerprintHash(value) {
+  // Low-entropy client fingerprints need a server-only keyed input.
+  // Reuse the project's server secret without exposing or persisting it.
+  return sha256(`${secretKey()}\n${value}`);
 }
 
 function bearer(req, scheme = "Bearer") {
@@ -112,14 +118,14 @@ async function addEvent(client, jobId, eventType, actorType, payload = {}) {
 }
 
 async function getJobByRequesterToken(client, id, token) {
-  const tokenHash = await saltedHash(token);
+  const tokenHash = await tokenHash(token);
   const { data, error } = await client.from("capability_jobs").select("*").eq("id", id).eq("requester_token_hash", tokenHash).maybeSingle();
   if (error) throw error;
   return data;
 }
 
 async function getJobByWorkerToken(client, id, token) {
-  const tokenHash = await saltedHash(token);
+  const tokenHash = await tokenHash(token);
   const { data, error } = await client.from("capability_jobs").select("*").eq("id", id).eq("worker_token_hash", tokenHash).maybeSingle();
   if (error) throw error;
   return data;
@@ -157,7 +163,7 @@ async function createRequest(req) {
   if (deadline && Number.isNaN(deadline.getTime())) return json(req, { error: "invalid_deadline" }, 400);
 
   const client = db();
-  const sourceFingerprint = await saltedHash(clientFingerprint(req));
+  const sourceFingerprint = await privateFingerprintHash(clientFingerprint(req));
   const since = new Date(Date.now() - 3600_000).toISOString();
   const { count, error: countError } = await client.from("capability_jobs")
     .select("id", { count: "exact", head: true })
@@ -167,9 +173,9 @@ async function createRequest(req) {
   if ((count ?? 0) >= MAX_REQUESTS_PER_HOUR) return json(req, { error: "rate_limited" }, 429);
 
   const requesterToken = newToken();
-  const requesterTokenHash = await saltedHash(requesterToken);
+  const requesterTokenHash = await tokenHash(requesterToken);
   const idemRaw = cleanString(req.headers.get("x-idempotency-key") ?? body.idempotency_key, 200);
-  const idempotencyHash = idemRaw ? await saltedHash(idemRaw) : null;
+  const idempotencyHash = idemRaw ? await tokenHash(idemRaw) : null;
 
   if (idempotencyHash) {
     const { data: existing } = await client.from("capability_jobs").select("id,status,created_at").eq("idempotency_key_hash", idempotencyHash).maybeSingle();
@@ -268,7 +274,7 @@ async function operatorApprove(req, id) {
   if (current.status !== "pending_review") return json(req, { error: "not_pending_review", status: current.status }, 409);
 
   const workerToken = newToken();
-  const workerTokenHash = await saltedHash(workerToken);
+  const workerTokenHash = await tokenHash(workerToken);
   const now = new Date().toISOString();
   const { error } = await client.from("capability_jobs").update({
     status: "open",
