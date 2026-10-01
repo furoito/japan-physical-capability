@@ -6,7 +6,7 @@ Canonical distribution checkpoint for the Japan Physical Capability discovery pr
 
 - Official MCP Registry
   - name: `io.github.furoito/japan-physical-capability`
-  - version: `0.4.0`
+  - version: `0.4.1`
   - remote transport: Streamable HTTP
   - source of truth: `server.json`
 - GitHub public repository
@@ -31,7 +31,10 @@ Do not count publication as discovery. A path is considered proven only when a s
 - GitHub repository search finds this repository for `store verification Japan mcp`, `physical world Japan ai agent`, and `remote mcp Japan store`.
 - Glama connector listing exists and the score badge returns HTTP 200.
 - Glama problem-first internal search remains UNKNOWN because the search request timed out during the probe.
-- Official MCP Registry v0.4.0 is published; duplicate-version republish attempts are expected to be rejected.
+- Official MCP Registry v0.4.1 is published and marked latest.
+- Within the first few hours, multiple independent MCP crawlers/indexers reached the endpoint, including Muse Directory, MCPHub, Tendle, agent-index-prober, Histor, GlideMcpIndex, MCP Observatory, mcp.market, and BrickBlueBot.
+- External discovery progressed beyond metadata: BrickBlueBot invoked capability tools. No natural `create_verification_request` was observed before the generic intake pivot.
+- Interpretation: discovery is demonstrated; the active uncertainty is what external work agents actually try to submit, not whether the endpoint can be found.
 
 ## Execution distribution
 
@@ -41,10 +44,13 @@ Do not count publication as discovery. A path is considered proven only when a s
 - E2E evidence before cutover: MCP create/status/cancel PASS; worker claim/complete with private photo evidence PASS; signed evidence fetch HTTP 200; invalid capability tokens fail closed; private bucket direct public fetch denied; rate limit 5 accepted then 429; canary data cleaned back to zero.
 
 
-## v0.4 demand probe
+## v0.4.1 demand probe
 
 - Generic intake added: `request_external_execution`.
 - Generic requests are tagged `request_kind=external_execution`.
 - `location` is optional for generic requests.
 - Optional `max_budget_jpy` records a non-binding willingness-to-pay hint.
 - Physical verification remains the first verified execution path; other submitted categories are observations until manually accepted and fulfilled.
+
+- Generic E2E verified: `request_external_execution` with no location and `max_budget_jpy=3000` -> `pending_review` -> status read -> cancel. Canary cleaned.
+- Generic intake is now the active Decision Frontier: observe the first natural `request_kind=external_execution` request and its objective/budget rather than guessing another service category.
