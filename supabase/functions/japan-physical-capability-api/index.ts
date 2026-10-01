@@ -179,12 +179,28 @@ async function createRequest(req) {
     return json(req, { error: "location_required_for_physical_verification" }, 400);
   }
 
-  const rawBudget = body.max_budget_jpy;
-  const maxBudgetJpy = rawBudget === undefined || rawBudget === null || rawBudget === ""
-    ? null
-    : Number(rawBudget);
-  if (maxBudgetJpy !== null && (!Number.isInteger(maxBudgetJpy) || maxBudgetJpy < 0)) {
-    return json(req, { error: "invalid_max_budget_jpy" }, 400);
+  const budgetAmountRaw = body.max_budget_amount ?? body.max_budget?.amount ?? body.max_budget_jpy ?? null;
+  const budgetCurrencyInput = body.max_budget_currency ?? body.max_budget?.currency ?? (body.max_budget_jpy !== undefined && body.max_budget_jpy !== null ? "JPY" : "");
+  const budgetCurrencyRaw = cleanString(budgetCurrencyInput, 3).toUpperCase();
+
+  let maxBudgetAmount = null;
+  let maxBudgetCurrency = null;
+  let maxBudgetJpy = null;
+
+  if (budgetAmountRaw !== null && budgetAmountRaw !== undefined && budgetAmountRaw !== "") {
+    maxBudgetAmount = Number(budgetAmountRaw);
+    if (!Number.isFinite(maxBudgetAmount) || maxBudgetAmount < 0 || maxBudgetAmount > 1_000_000_000_000) {
+      return json(req, { error: "invalid_max_budget_amount" }, 400);
+    }
+    if (!/^[A-Z]{3}$/.test(budgetCurrencyRaw)) {
+      return json(req, { error: "invalid_max_budget_currency" }, 400);
+    }
+    maxBudgetCurrency = budgetCurrencyRaw;
+    if (maxBudgetCurrency === "JPY" && Number.isInteger(maxBudgetAmount)) {
+      maxBudgetJpy = maxBudgetAmount;
+    }
+  } else if (budgetCurrencyRaw) {
+    return json(req, { error: "budget_amount_required_with_currency" }, 400);
   }
 
   const gate = classify(location, objective);
@@ -236,6 +252,8 @@ async function createRequest(req) {
     request_kind: requestKind,
     location: location || null,
     objective,
+    max_budget_amount: maxBudgetAmount,
+    max_budget_currency: maxBudgetCurrency,
     max_budget_jpy: maxBudgetJpy,
     deadline: deadline?.toISOString() ?? null,
     evidence_requirements: cleanArray(body.evidence_requirements),
@@ -286,6 +304,10 @@ async function requestStatus(req, id) {
     request_kind: job.request_kind,
     location: job.location,
     objective: job.objective,
+    max_budget: job.max_budget_amount === null ? null : {
+      amount: Number(job.max_budget_amount),
+      currency: job.max_budget_currency,
+    },
     max_budget_jpy: job.max_budget_jpy,
     deadline: job.deadline,
     evidence_requirements: job.evidence_requirements,
@@ -328,7 +350,7 @@ async function operatorList(req, url) {
   if (!allowed.has(requested)) return json(req, { error: "invalid_status" }, 400);
   const client = db();
   const { data, error } = await client.from("capability_jobs")
-    .select("id,status,request_kind,location,objective,max_budget_jpy,deadline,evidence_requirements,constraints,created_at,updated_at")
+    .select("id,status,request_kind,location,objective,max_budget_amount,max_budget_currency,max_budget_jpy,deadline,evidence_requirements,constraints,created_at,updated_at")
     .eq("status", requested)
     .order("created_at", { ascending: true })
     .limit(100);
@@ -400,6 +422,10 @@ async function workerJob(req, id) {
     request_kind: job.request_kind,
     location: job.location,
     objective: job.objective,
+    max_budget: job.max_budget_amount === null ? null : {
+      amount: Number(job.max_budget_amount),
+      currency: job.max_budget_currency,
+    },
     max_budget_jpy: job.max_budget_jpy,
     deadline: job.deadline,
     evidence_requirements: job.evidence_requirements,
