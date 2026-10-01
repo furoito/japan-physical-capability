@@ -11,6 +11,7 @@ create table if not exists public.capability_jobs (
   source_fingerprint text,
   request_kind text not null default 'physical_verification'\n    check (request_kind in ('physical_verification','external_execution')),\n  location text check (location is null or char_length(location) between 2 and 500),
   objective text not null check (char_length(objective) between 3 and 4000),
+  max_budget_jpy integer check (max_budget_jpy is null or max_budget_jpy >= 0),
   deadline timestamptz,\n  max_budget_amount numeric check (max_budget_amount is null or max_budget_amount >= 0),\n  max_budget_currency text check (max_budget_currency is null or max_budget_currency ~ '^[A-Z]{3}
   evidence_requirements jsonb not null default '[]'::jsonb check (jsonb_typeof(evidence_requirements) = 'array'),
   constraints jsonb not null default '[]'::jsonb check (jsonb_typeof(constraints) = 'array'),
