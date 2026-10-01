@@ -116,7 +116,7 @@ function buildServer() {
     {
       name: "japan-physical-capability",
       title: "Japan External Execution",
-      version: "0.4.0",
+      version: "0.4.1",
       websiteUrl: "https://furoito.github.io/japan-physical-capability/",
       description:
         "AI-callable external execution in Japan: submit bounded real-world tasks for manual review and human execution.",
@@ -516,7 +516,7 @@ Deno.serve(async (request: Request) => {
       return Response.json({
         ok: true,
         service: "japan-physical-capability-mcp",
-        version: "0.4.0",
+        version: "0.4.1",
         tools: [
           "check_service_fit",
           "prepare_verification_request",
