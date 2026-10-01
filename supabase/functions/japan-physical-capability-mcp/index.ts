@@ -115,7 +115,7 @@ function buildServer() {
   const server = new McpServer(
     {
       name: "japan-physical-capability",
-      title: "Japan Physical Capability",
+      title: "Japan External Execution",
       version: "0.4.0",
       websiteUrl: "https://furoito.github.io/japan-physical-capability/",
       description:
@@ -461,6 +461,171 @@ function buildServer() {
     {
       title: "Cancel external execution request",
       description: "Cancel an external-execution request while it is still pending review or open.",
+      annotations: {
+        readOnlyHint: false,
+        destructiveHint: true,
+        idempotentHint: true,
+        openWorldHint: true,
+      },
+      inputSchema: z.object({
+        request_id: z.string().uuid(),
+        status_token: z.string().min(20),
+      }),
+    },
+    async ({ request_id, status_token }) => {
+      try {
+        const result = await executionApi(
+          `/requests/${encodeURIComponent(request_id)}/cancel`,
+          {
+            method: "POST",
+            headers: { authorization: `Bearer ${status_token}` },
+          },
+        );
+        return {
+          content: [{ type: "text", text: JSON.stringify(result) }],
+          structuredContent: result,
+          isError: false,
+        };
+      } catch (error) {
+        const output = {
+          error: "external_execution_cancel_failed",
+          detail: error instanceof Error ? error.message : String(error),
+        };
+        return {
+          content: [{ type: "text", text: JSON.stringify(output) }],
+          structuredContent: output,
+          isError: true,
+        };
+      }
+    },
+  );
+
+
+  server.registerTool(
+    "request_external_execution",
+    {
+      title: "Request external execution in Japan",
+      description:
+        "Use when an AI cannot complete a task digitally and needs a human or real-world actor in Japan. Submit the objective without preselecting a service category. Requests are manually reviewed; no payment, purchase, hire, contract, or fulfillment commitment happens automatically.",
+      annotations: {
+        readOnlyHint: false,
+        destructiveHint: false,
+        idempotentHint: true,
+        openWorldHint: true,
+      },
+      inputSchema: z.object({
+        objective: z.string().min(3).max(4000).describe("The outcome the agent needs from the external world."),
+        location: z.string().min(2).max(500).optional().describe("Optional place or geographic constraint. Omit when the task is not location-bound."),
+        max_budget: z.object({
+          amount: z.number().nonnegative().max(1_000_000_000_000),
+          currency: z.string().regex(/^[A-Za-z]{3}$/).describe("ISO 4217-style three-letter currency code, e.g. JPY."),
+        }).optional().describe("Optional maximum budget. This is metadata only and does not authorize spending."),
+        deadline: z.string().datetime().optional(),
+        evidence_requirements: z.array(z.string().max(500)).max(20).optional(),
+        constraints: z.array(z.string().max(500)).max(20).optional(),
+        idempotency_key: z.string().min(8).max(200).describe("Stable key for this logical request. Reuse it when retrying after a lost response."),
+      }),
+    },
+    async (input) => {
+      const text = `${input.location ?? ""}\n${input.objective}`;
+      if (forbiddenPatterns.some((pattern) => pattern.test(text))) {
+        const output = {
+          status: "not_supported",
+          reason:
+            "This pilot does not accept private-person surveillance, non-public access, regulated purchases, impersonation, or unsafe/illegal/deceptive requests.",
+        };
+        return {
+          content: [{ type: "text", text: JSON.stringify(output) }],
+          structuredContent: output,
+          isError: true,
+        };
+      }
+
+      try {
+        const result = await executionApi("/requests", {
+          method: "POST",
+          headers: {
+            "content-type": "application/json",
+            "x-idempotency-key": input.idempotency_key,
+          },
+          body: JSON.stringify({
+            request_kind: "external_execution",
+            objective: input.objective,
+            location: input.location,
+            max_budget_amount: input.max_budget?.amount,
+            max_budget_currency: input.max_budget?.currency?.toUpperCase(),
+            deadline: input.deadline,
+            evidence_requirements: input.evidence_requirements,
+            constraints: input.constraints,
+          }),
+        });
+        return {
+          content: [{ type: "text", text: JSON.stringify(result) }],
+          structuredContent: result,
+          isError: false,
+        };
+      } catch (error) {
+        const output = {
+          error: "external_execution_request_failed",
+          detail: error instanceof Error ? error.message : String(error),
+        };
+        return {
+          content: [{ type: "text", text: JSON.stringify(output) }],
+          structuredContent: output,
+          isError: true,
+        };
+      }
+    },
+  );
+
+  server.registerTool(
+    "get_external_execution_status",
+    {
+      title: "Get external execution status",
+      description:
+        "Read the current manual-review/execution state and, when completed, receive structured results and temporary signed evidence URLs.",
+      annotations: {
+        readOnlyHint: true,
+        destructiveHint: false,
+        idempotentHint: true,
+        openWorldHint: true,
+      },
+      inputSchema: z.object({
+        request_id: z.string().uuid(),
+        status_token: z.string().min(20),
+      }),
+    },
+    async ({ request_id, status_token }) => {
+      try {
+        const result = await executionApi(
+          `/requests/${encodeURIComponent(request_id)}`,
+          { headers: { authorization: `Bearer ${status_token}` } },
+        );
+        return {
+          content: [{ type: "text", text: JSON.stringify(result) }],
+          structuredContent: result,
+          isError: false,
+        };
+      } catch (error) {
+        const output = {
+          error: "external_execution_status_failed",
+          detail: error instanceof Error ? error.message : String(error),
+        };
+        return {
+          content: [{ type: "text", text: JSON.stringify(output) }],
+          structuredContent: output,
+          isError: true,
+        };
+      }
+    },
+  );
+
+  server.registerTool(
+    "cancel_external_execution_request",
+    {
+      title: "Cancel external execution request",
+      description:
+        "Cancel a generic external-execution request while it is still pending review or open.",
       annotations: {
         readOnlyHint: false,
         destructiveHint: true,
