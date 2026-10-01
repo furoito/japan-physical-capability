@@ -665,6 +665,148 @@ function buildServer() {
     },
   );
 
+
+  server.registerTool(
+    "request_external_execution",
+    {
+      title: "Request external execution in Japan",
+      description:
+        "Use when an AI cannot complete a task itself and needs a human or provider in Japan, or for a Japan-related real-world task. Examples include calling a public business, visiting a public place, inspecting or photographing something, packing/shipping/returning an item, pickup/drop-off, or another manual task. This only creates a manual-review request. It does not automatically hire, pay, purchase, or promise fulfillment.",
+      annotations: {
+        readOnlyHint: false,
+        destructiveHint: false,
+        idempotentHint: true,
+        openWorldHint: true,
+      },
+      inputSchema: z.object({
+        objective: z.string().min(3).max(4000).describe("The outcome the agent needs from external execution."),
+        location: z.string().min(2).max(500).optional().describe("Location if relevant. Omit for remote or not-yet-specified tasks."),
+        max_budget_jpy: z.number().int().min(0).max(10000000).optional().describe("Maximum budget the requester is willing to consider, in JPY. This is not a charge or authorization to spend."),
+        deadline: z.string().datetime().optional(),
+        evidence_requirements: z.array(z.string().max(500)).max(20).optional(),
+        constraints: z.array(z.string().max(500)).max(20).optional(),
+        idempotency_key: z.string().min(8).max(200).describe("Stable key for this logical request. Reuse on retry after a lost response."),
+      }),
+    },
+    async (input) => {
+      try {
+        const result = await executionApi("/requests", {
+          method: "POST",
+          headers: {
+            "content-type": "application/json",
+            "x-idempotency-key": input.idempotency_key,
+          },
+          body: JSON.stringify({
+            ...input,
+            request_kind: "external_execution",
+          }),
+        });
+        return {
+          content: [{ type: "text", text: JSON.stringify(result) }],
+          structuredContent: result,
+          isError: false,
+        };
+      } catch (error) {
+        const output = {
+          error: "external_execution_request_failed",
+          detail: error instanceof Error ? error.message : String(error),
+        };
+        return {
+          content: [{ type: "text", text: JSON.stringify(output) }],
+          structuredContent: output,
+          isError: true,
+        };
+      }
+    },
+  );
+
+  server.registerTool(
+    "get_external_execution_status",
+    {
+      title: "Get external execution status",
+      description:
+        "Read a manual-review external execution request and, when completed, receive the structured result and temporary evidence URLs.",
+      annotations: {
+        readOnlyHint: true,
+        destructiveHint: false,
+        idempotentHint: true,
+        openWorldHint: true,
+      },
+      inputSchema: z.object({
+        request_id: z.string().uuid(),
+        status_token: z.string().min(20),
+      }),
+    },
+    async ({ request_id, status_token }) => {
+      try {
+        const result = await executionApi(
+          `/requests/${encodeURIComponent(request_id)}`,
+          { headers: { authorization: `Bearer ${status_token}` } },
+        );
+        return {
+          content: [{ type: "text", text: JSON.stringify(result) }],
+          structuredContent: result,
+          isError: false,
+        };
+      } catch (error) {
+        const output = {
+          error: "external_execution_status_failed",
+          detail: error instanceof Error ? error.message : String(error),
+        };
+        return {
+          content: [{ type: "text", text: JSON.stringify(output) }],
+          structuredContent: output,
+          isError: true,
+        };
+      }
+    },
+  );
+
+  server.registerTool(
+    "cancel_external_execution_request",
+    {
+      title: "Cancel external execution request",
+      description:
+        "Cancel an external execution request while it is still pending manual review or open. Claimed or completed work cannot be cancelled through this tool.",
+      annotations: {
+        readOnlyHint: false,
+        destructiveHint: true,
+        idempotentHint: true,
+        openWorldHint: true,
+      },
+      inputSchema: z.object({
+        request_id: z.string().uuid(),
+        status_token: z.string().min(20),
+      }),
+    },
+    async ({ request_id, status_token }) => {
+      try {
+        const result = await executionApi(
+          `/requests/${encodeURIComponent(request_id)}/cancel`,
+          {
+            method: "POST",
+            headers: { authorization: `Bearer ${status_token}` },
+          },
+        );
+        return {
+          content: [{ type: "text", text: JSON.stringify(result) }],
+          structuredContent: result,
+          isError: false,
+        };
+      } catch (error) {
+        const output = {
+          error: "external_execution_cancel_failed",
+          detail: error instanceof Error ? error.message : String(error),
+        };
+        return {
+          content: [{ type: "text", text: JSON.stringify(output) }],
+          structuredContent: output,
+          isError: true,
+        };
+      }
+    },
+  );
+
   return server;
 }
 
