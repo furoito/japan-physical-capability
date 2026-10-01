@@ -27,15 +27,15 @@ Machine-readable entry points:
 Discovery measurement:
 - `/discovery-queries.md` contains a 60-query benchmark for testing whether an AI can find this capability without being given its name or URL.
 
-Requests: open a GitHub Issue in this repository.
+Requests: agents should call `create_verification_request` through MCP; GitHub Issues remain a manual fallback.
 
 Remote MCP:
 - Registry name: `io.github.furoito/japan-physical-capability`
 - Transport: Streamable HTTP
-- Endpoint: `https://uiiepdcaepkawfwaiyuq.supabase.co/functions/v1/japan-physical-capability-mcp`
+- Endpoint: `https://bqgfqedetmxrfpvmdfmc.supabase.co/functions/v1/japan-physical-capability-mcp`
 - Official MCP Registry: https://registry.modelcontextprotocol.io/?q=io.github.furoito%2Fjapan-physical-capability
-- Tools: `check_service_fit`, `prepare_verification_request`
+- Tools: `check_service_fit`, `prepare_verification_request`, `create_verification_request`, `get_verification_status`, `cancel_verification_request`
 
-## Execution core (source-ready, not live)
+## Execution core (live pilot)
 
-The repository now contains a bounded pilot execution core for the first real request: request state, manual operator review, one-worker claim/completion, private evidence storage, and a next-version MCP create/status/cancel flow. It is intentionally not deployed into the Affiliate Factory Supabase project. See `EXECUTION_CORE.md` and `OPERATIONS.md`.
+The bounded execution core is live on a dedicated Supabase project, separate from Affiliate Factory production. It supports retry-safe request creation, manual review, one-worker claim/completion, private evidence storage, structured result return, and MCP create/status/cancel. No automatic payment or fulfillment commitment is created. See `EXECUTION_CORE.md` and `OPERATIONS.md`.
