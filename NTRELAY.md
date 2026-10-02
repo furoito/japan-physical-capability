@@ -1,6 +1,6 @@
 # NT Relay public plugin checkpoint
 
-Updated: 2026-10-02
+Updated: 2026-10-03
 
 ## Public product
 
@@ -30,19 +30,20 @@ Current ConoHa origin IPv4: `157.120.209.86`.
 
 Direct origin probe with `Host: ntrelay.com` passes. MCP `initialize` + `tools/list` through the proxy passes.
 
-## DNS gate
+## Public HTTPS verification
 
-Authoritative DNS is Cloudflare:
+Authoritative DNS is Cloudflare and both `ntrelay.com` and `www.ntrelay.com` now resolve to the ConoHa origin `157.120.209.86`.
 
-- `carol.ns.cloudflare.com`
-- `graham.ns.cloudflare.com`
+Verified on 2026-10-03:
 
-The public apex is still proxied to the old origin and `www.ntrelay.com` still resolves to `150.95.255.38`.
+- TLS certificate subject: `CN=ntrelay.com`
+- issuer: Let's Encrypt
+- SANs: `ntrelay.com`, `www.ntrelay.com`
+- `/`, `/privacy/`, `/terms/`, and `/support/` all return HTTP 200 over certificate-valid HTTPS
+- `https://ntrelay.com/mcp/` MCP `initialize` returns NT Relay v0.4.3
+- MCP `tools/list` returns all eight expected tools
 
-Decision gate: update the Cloudflare origin target for `ntrelay.com` (and preferably `www`) to `157.120.209.86`, preserving the existing proxy/TTL behavior. After the cutover, verify HTTPS, legal pages, and MCP end-to-end.
-
-The Cloudflare edge already presents a valid certificate for `ntrelay.com`. The ConoHa origin itself does not yet have a valid `ntrelay.com` certificate, so after DNS cutover verify the current Cloudflare SSL mode; if it is Full (strict), enable a valid origin certificate or ConoHa free SSL before public submission.
-
+The previous DNS/TLS blocker is closed.
 ## Plugin
 
 Workspace plugin:
@@ -92,4 +93,12 @@ OpenAI public plugin review still requires:
 9. OpenAI review approval
 10. explicit Publish action in the submission portal
 
-The available Plugin Creator API can create/update the workspace plugin but does not expose public submission or Publish actions. Those portal actions remain a human-authenticated UI boundary.
+The available Plugin Creator API can create/update the workspace plugin but does not expose workspace-directory publication, public submission, or final Publish actions. Those portal actions remain a human-authenticated UI boundary.
+
+Current observed state on 2026-10-03:
+
+- workspace plugin release `0.2.0` is still `PRIVATE`
+- its MCP configuration already points to `https://ntrelay.com/mcp/`; no release update is required for the SSL cutover
+- Plugin Search does not surface NT Relay while it remains private
+- `https://ntrelay.com/.well-known/openai-apps-challenge` currently returns HTTP 404; no challenge token has been issued/installed yet
+- immediate Decision Frontier: publish NT Relay to the workspace directory, then run a blind discovery/tool-selection probe before investing further in global public-review work
