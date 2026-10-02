@@ -65,3 +65,13 @@ Do not count publication as discovery. A path is considered proven only when a s
 - The synthetic request was cancelled and deleted after verification so it is not counted as market demand.
 - This proves workflow-level tool selection when the capability is already available to the agent. It does **not** prove organic market demand or organic discovery-to-conversion.
 - A timezone-offset validation bug in `deadline` was found during the probe and fixed in MCP v0.4.2.
+
+## Plugin discovery probe — 2026-10-02
+
+- Created workspace-private plugin `japan-external-execution` that packages the production Remote MCP plus the `real-world-exception-resolution` skill.
+- Plugin description targets business/operational exceptions that require human action in Japan: phone calls, local verification, inspections, pickup/drop-off, shipping, returns, and other physical-world work.
+- Skill activation targets cases where web/browser/code/email cannot close a business objective and the unresolved exception blocks revenue, fulfillment, procurement, customer support, or another time-sensitive outcome.
+- Plugin creation and package validation PASS.
+- Current discoverability is `PRIVATE`; Plugin Search does not surface it while private.
+- Next Decision Frontier: publish it to the workspace directory, then run a blind Codex task with no mention of plugins, MCP, external execution, or capability acquisition and observe whether Codex's normal plugin-discovery path surfaces this plugin.
+- Do not invest in public-directory submission assets/review until workspace-discovery behavior is demonstrated.
