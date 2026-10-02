@@ -115,9 +115,9 @@ function buildServer() {
   const server = new McpServer(
     {
       name: "japan-physical-capability",
-      title: "Japan External Execution",
-      version: "0.4.2",
-      websiteUrl: "https://furoito.github.io/japan-physical-capability/",
+      title: "NT Relay",
+      version: "0.4.3",
+      websiteUrl: "https://ntrelay.com/",
       description:
         "AI-callable external execution in Japan: submit bounded real-world tasks for manual review and human execution.",
     },
