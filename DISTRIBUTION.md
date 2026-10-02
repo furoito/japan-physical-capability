@@ -54,3 +54,14 @@ Do not count publication as discovery. A path is considered proven only when a s
 
 - Generic E2E verified: `request_external_execution` with no location and `max_budget_jpy=3000` -> `pending_review` -> status read -> cancel. Canary cleaned.
 - Generic intake is now the active Decision Frontier: observe the first natural `request_kind=external_execution` request and its objective/budget rather than guessing another service category.
+
+## Agent workflow injection probe — 2026-10-02
+
+- Codex CLI was connected directly to the public Remote MCP and given a realistic task that required current real-world verification.
+- The prompt did not name this service, MCP server, or any tool.
+- Codex searched the web first, detected the remaining real-world information gap, and independently selected `request_external_execution`.
+- A controlled `request_kind=external_execution` request reached `pending_review` with `max_budget_jpy=0`; no payment, booking, purchase, or worker dispatch occurred.
+- Codex also read the request back through `get_external_execution_status`.
+- The synthetic request was cancelled and deleted after verification so it is not counted as market demand.
+- This proves workflow-level tool selection when the capability is already available to the agent. It does **not** prove organic market demand or organic discovery-to-conversion.
+- A timezone-offset validation bug in `deadline` was found during the probe and fixed in MCP v0.4.2.
