@@ -78,9 +78,12 @@ Do not count publication as discovery. A path is considered proven only when a s
 
 ## NT Relay domain publication — 2026-10-03
 
-- Canonical public web surface prepared at `ntrelay.com` on the existing ConoHa WING account without removing the pre-existing Affiliate Factory OAuth endpoints.
-- Cloudflare authoritative DNS now resolves both `ntrelay.com` and `www.ntrelay.com` to the ConoHa origin `157.120.209.86`.
-- HTTP checks PASS for `/`, `/privacy/`, `/terms/`, `/support/`, and the existing `/.well-known/oauth-authorization-server`.
-- HTTP MCP proxy at `http://ntrelay.com/mcp/` PASS: initialize returns NT Relay v0.4.3 and tools/list returns all 8 tools with reviewed annotations.
-- CURRENT blocker: ConoHa is still serving its `*.conohawing.com` certificate for the origin, so `https://ntrelay.com` is not yet valid. Do not switch the plugin remote URL to `https://ntrelay.com/mcp/` until origin TLS is verified.
-- Next gate: enable ConoHa WING Free SSL for `ntrelay.com`, verify HTTPS for the web/legal/support surfaces and MCP initialize/tools/list, then update the private Plugin remote endpoint to `https://ntrelay.com/mcp/` and continue publication preparation.
+- Canonical public web surface is live at `https://ntrelay.com/` on the existing ConoHa WING account without removing the pre-existing Affiliate Factory OAuth endpoints.
+- Cloudflare authoritative DNS resolves both `ntrelay.com` and `www.ntrelay.com` to the ConoHa origin `157.120.209.86`.
+- ConoHa Free SSL is now active. The public certificate is issued by Let's Encrypt for `ntrelay.com` with SANs for `ntrelay.com` and `www.ntrelay.com`.
+- HTTPS checks PASS for `/`, `/privacy/`, `/terms/`, and `/support/`.
+- HTTPS MCP proxy at `https://ntrelay.com/mcp/` PASS: `initialize` returns NT Relay v0.4.3 and `tools/list` returns all 8 tools.
+- Workspace plugin `japan-external-execution` release 0.2.0 already targets `https://ntrelay.com/mcp/`; no plugin release change is required for the TLS cutover.
+- The plugin remains `PRIVATE`, and Plugin Search does not surface NT Relay in that state.
+- `/.well-known/openai-apps-challenge` is currently absent (HTTP 404); a challenge token must come from the public-review flow before that path can be installed.
+- Current Decision Frontier: publish the plugin to the workspace directory through the authenticated workspace UI, then run a blind plugin-discovery/tool-selection probe. Treat global public-review assets and attestations as downstream until workspace discovery is demonstrated.
