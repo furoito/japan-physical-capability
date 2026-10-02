@@ -134,7 +134,7 @@ function buildServer() {
         readOnlyHint: true,
         destructiveHint: false,
         idempotentHint: true,
-        openWorldHint: true,
+        openWorldHint: false,
       },
       inputSchema: z.object({
         location: z.string().min(1).describe("Public business or retail location in Japan."),
@@ -170,7 +170,7 @@ function buildServer() {
         readOnlyHint: true,
         destructiveHint: false,
         idempotentHint: true,
-        openWorldHint: true,
+        openWorldHint: false,
       },
       inputSchema: z.object({
         location: z.string().min(1).describe("Public business or retail location in Japan."),
@@ -233,7 +233,7 @@ function buildServer() {
         readOnlyHint: false,
         destructiveHint: false,
         idempotentHint: true,
-        openWorldHint: true,
+        openWorldHint: false,
       },
       inputSchema: z.object({
         location: z.string().min(2).max(500),
@@ -285,7 +285,7 @@ function buildServer() {
         readOnlyHint: true,
         destructiveHint: false,
         idempotentHint: true,
-        openWorldHint: true,
+        openWorldHint: false,
       },
       inputSchema: z.object({
         request_id: z.string().uuid(),
@@ -327,7 +327,7 @@ function buildServer() {
         readOnlyHint: false,
         destructiveHint: true,
         idempotentHint: true,
-        openWorldHint: true,
+        openWorldHint: false,
       },
       inputSchema: z.object({
         request_id: z.string().uuid(),
@@ -373,7 +373,7 @@ function buildServer() {
         readOnlyHint: false,
         destructiveHint: false,
         idempotentHint: true,
-        openWorldHint: true,
+        openWorldHint: false,
       },
       inputSchema: z.object({
         objective: z.string().min(3).max(4000).describe("The outcome the agent needs from external execution."),
@@ -427,7 +427,7 @@ function buildServer() {
         readOnlyHint: true,
         destructiveHint: false,
         idempotentHint: true,
-        openWorldHint: true,
+        openWorldHint: false,
       },
       inputSchema: z.object({
         request_id: z.string().uuid(),
@@ -469,7 +469,7 @@ function buildServer() {
         readOnlyHint: false,
         destructiveHint: true,
         idempotentHint: true,
-        openWorldHint: true,
+        openWorldHint: false,
       },
       inputSchema: z.object({
         request_id: z.string().uuid(),
