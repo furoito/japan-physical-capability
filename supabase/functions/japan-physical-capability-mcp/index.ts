@@ -116,7 +116,7 @@ function buildServer() {
     {
       name: "japan-physical-capability",
       title: "Japan External Execution",
-      version: "0.4.1",
+      version: "0.4.2",
       websiteUrl: "https://furoito.github.io/japan-physical-capability/",
       description:
         "AI-callable external execution in Japan: submit bounded real-world tasks for manual review and human execution.",
@@ -238,7 +238,7 @@ function buildServer() {
       inputSchema: z.object({
         location: z.string().min(2).max(500),
         objective: z.string().min(3).max(4000),
-        deadline: z.string().datetime().optional(),
+        deadline: z.string().datetime({ offset: true }).optional(),
         evidence_requirements: z.array(z.string().max(500)).max(20).optional(),
         constraints: z.array(z.string().max(500)).max(20).optional(),
         idempotency_key: z.string().min(8).max(200).describe("Stable key for this logical request. Reuse the same key when retrying create after a lost response."),
@@ -379,7 +379,7 @@ function buildServer() {
         objective: z.string().min(3).max(4000).describe("The outcome the agent needs from external execution."),
         location: z.string().min(2).max(500).optional().describe("Location if relevant. Omit for remote or not-yet-specified tasks."),
         max_budget_jpy: z.number().int().min(0).max(10000000).optional().describe("Maximum budget the requester is willing to consider, in JPY. This is not a charge or authorization to spend."),
-        deadline: z.string().datetime().optional(),
+        deadline: z.string().datetime({ offset: true }).optional(),
         evidence_requirements: z.array(z.string().max(500)).max(20).optional(),
         constraints: z.array(z.string().max(500)).max(20).optional(),
         idempotency_key: z.string().min(8).max(200).describe("Stable key for this logical request. Reuse on retry after a lost response."),
@@ -516,7 +516,7 @@ Deno.serve(async (request: Request) => {
       return Response.json({
         ok: true,
         service: "japan-physical-capability-mcp",
-        version: "0.4.1",
+        version: "0.4.2",
         tools: [
           "check_service_fit",
           "prepare_verification_request",
